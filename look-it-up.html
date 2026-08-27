@@ -192,19 +192,57 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .answer q{quotes:"“" "”";color:var(--ink)}
 
 /* ================= keyword vs meaning ================= */
-.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:1px;
-  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
-.vs > div{background:var(--surface);padding:1.15rem 1.2rem;display:flex;flex-direction:column;gap:.7rem}
-.vs h3{margin:0;font-family:"Poppins",sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted)}
-.q{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink)}
-.res{display:flex;flex-direction:column;gap:.3rem;font-size:.86rem}
-.res b{font-weight:400;padding:.35em .5em;border-radius:3px;background:var(--surface-2);
-  border:1px solid var(--line)}
-.res b.miss{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-strong)}
-.res b.win{background:var(--hit-soft);border-color:var(--hit);color:var(--ink);font-weight:600}
-.res b mark{background:color-mix(in srgb,var(--hit) 30%,transparent);color:inherit;padding:0 .1em}
-.verdict{font-size:.9rem;color:var(--muted);margin-top:auto}
+
+/* ---------- the map: passages placed by meaning, the question dropped into it ---------- */
+.mapwrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+  gap:clamp(1rem,3vw,1.7rem);padding:clamp(1.1rem,3vw,1.7rem)}
+@media (max-width:820px){.mapwrap{grid-template-columns:minmax(0,1fr)}}
+svg.map{width:100%;height:auto;display:block}
+.map .hull{opacity:.11}
+.map .hulllbl{font-family:"Poppins",sans-serif;font-size:2.4px;font-weight:700;
+  letter-spacing:.12px;text-transform:uppercase;fill:var(--muted)}
+.map .dot{fill:var(--idle);transition:fill .3s ease,opacity .3s ease}
+.map .dot.lit{fill:var(--hit)}
+.map .dot.far{opacity:.4}
+.map .lbl{font-family:"Poppins",sans-serif;font-size:2.75px;font-weight:600;fill:var(--muted);
+  transition:fill .3s ease,opacity .3s ease}
+.map .lbl.lit{fill:var(--ink)}
+.map .lbl.far{opacity:.45}
+.map .link{stroke:var(--hit);stroke-width:.4;opacity:0;transition:opacity .35s ease}
+.map .link.in{opacity:.7}
+.map .ring{fill:none;stroke:var(--query);stroke-width:.3;stroke-dasharray:1.5 1.3;
+  opacity:.7;transition:opacity .5s ease}
+.map .ring:not(.in){opacity:0}
+.map .qhalo{fill:var(--query);opacity:.14}
+.map .qdot{fill:var(--query)}
+.map .qmark{opacity:0;transition:opacity .3s ease}
+.map .qmark.in{opacity:1}
+
+.mapside{display:flex;flex-direction:column;gap:.85rem;min-width:0}
+.modes{display:flex;gap:.4rem}
+.modes button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.rank{display:flex;flex-direction:column;gap:.45rem;min-height:12rem}
+.rankrow{opacity:0;transform:translateY(3px);transition:opacity .3s ease,transform .3s ease}
+.rankrow.in{opacity:1;transform:none}
+.rankline{display:grid;grid-template-columns:1.15rem minmax(0,1fr) 2.4rem;gap:.5rem;
+  align-items:baseline;font-size:.82rem}
+.rankline.solo{grid-template-columns:minmax(0,1fr)}
+.rankline i{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.7rem;color:var(--muted)}
+.rankline b{font-weight:600;color:var(--ink);min-width:0}
+.rankline em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.7rem;
+  color:var(--muted);text-align:right}
+.rankrow.out b{font-weight:400;color:var(--muted)}
+.rbar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;
+  margin:.3rem 0 0 1.65rem}
+.rbar i{display:block;height:100%;width:0;background:var(--hit);transition:width .45s ease}
+.rankrow.out .rbar i{background:var(--line-strong)}
+.cutline{display:flex;align-items:center;gap:.6rem;opacity:0;font-size:.64rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:.2rem 0}
+.cutline.in{opacity:1}
+.cutline:before,.cutline:after{content:"";height:1px;background:var(--line);flex:1}
+.mapcap{font-size:.92rem;color:var(--ink-2);min-height:4.2em;margin-top:auto}
+.mapcap b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--accent);
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.2rem}
 
 .strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1.4rem;
   padding-top:.4rem}
@@ -289,6 +327,33 @@ footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-
 
   <section>
     <div class="head">
+      <span class="eyebrow">Why it finds things you did not name</span>
+      <h2>Near in meaning, not in wording</h2>
+      <p class="lede measure">Every passage is filed by what it is about, so related ones end up neighbours. Your question is placed on the same map — and whatever it lands next to is what gets pulled.</p>
+    </div>
+
+    <div class="panel">
+      <div class="mapwrap">
+        <div>
+          <svg class="map" id="mapSvg" viewBox="-11 -9 122 94" role="img"
+               aria-label="A map of stored passages. Related passages sit close together; a question lands among its nearest neighbours."></svg>
+        </div>
+        <div class="mapside">
+          <div class="chips" id="mapChips"></div>
+          <div class="modes">
+            <button id="mMeaning" aria-pressed="true">By meaning</button>
+            <button id="mWords" aria-pressed="false">By exact words</button>
+          </div>
+          <div class="rank" id="mapRank"></div>
+          <p class="mapcap" id="mapCap"></p>
+        </div>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">Closeness here is plain distance on a flat picture. A real system spreads the same idea over hundreds of dimensions — same principle, no way to draw it.</p>
+  </section>
+
+  <section>
+    <div class="head">
       <span class="eyebrow">The looking-up, in the open</span>
       <h2>Three pages go on the desk</h2>
       <p class="lede measure">It finds the few passages that answer you, puts those on the desk, and writes from them.</p>
@@ -306,35 +371,6 @@ footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-
       </div>
     </div>
     <p class="note measure" style="margin-top:.9rem">Everything else stayed in the drawer. Here all three came from one folder; often they come from several.</p>
-  </section>
-
-  <section>
-    <div class="head">
-      <span class="eyebrow">Why it finds things you did not name</span>
-      <h2>Not a word in common</h2>
-    </div>
-    <div class="vs">
-      <div>
-        <h3>Searching for words</h3>
-        <p class="q">"how many days off do I get?"</p>
-        <div class="res">
-          <b class="miss">Annual leave entitlement — 26 days</b>
-          <b class="miss">Carry-over of unused leave</b>
-          <b class="miss">Public holidays by country</b>
-        </div>
-        <p class="verdict">No document contains "days off". Nothing found.</p>
-      </div>
-      <div>
-        <h3>Searching for meaning</h3>
-        <p class="q">"how many days off do I get?"</p>
-        <div class="res">
-          <b class="win">Annual <mark>leave entitlement</mark> — 26 days</b>
-          <b class="win">Carry-over of unused <mark>leave</mark></b>
-          <b class="win">Public <mark>holidays</mark> by country</b>
-        </div>
-        <p class="verdict">Same question. Found, because "leave" and "days off" sit next to each other on the map.</p>
-      </div>
-    </div>
   </section>
 
   <footer>
@@ -528,6 +564,247 @@ QUESTIONS.forEach((q, i) => {
   chipHost.appendChild(b);
 });
 ask(0);
+/* ================= the map: proximity is the whole mechanism =================
+   Positions are hand-placed to put related passages near each other. Ranking,
+   closeness and the cut-off are all computed from those positions, so the
+   picture and the list can never disagree.                                   */
+(function(){
+  const CLUSTERS = [
+    { id:"off",  label:"Time off",   c:"--c2", cx:23, cy:25, rx:15, ry:13 },
+    { id:"exp",  label:"Money",      c:"--c3", cx:76, cy:22, rx:13, ry:11 },
+    { id:"it",   label:"Equipment",  c:"--c1", cx:79, cy:60, rx:12, ry:10 },
+    { id:"work", label:"The office", c:"--c4", cx:22, cy:62, rx:13, ry:11 }
+  ];
+  const POINTS = [
+    { t:"Annual leave entitlement — 26 days", s:"Annual leave",   x:18, y:19,   cl:"off" },
+    { t:"Carry-over of unused leave",         s:"Carry-over",     x:31, y:23,   cl:"off" },
+    { t:"Public holidays by country",         s:"Public holidays",x:13, y:29,   cl:"off" },
+    { t:"Parental leave and pay",             s:"Parental leave", x:26, y:35,   cl:"off" },
+    { t:"Expense claims: what counts",        s:"Expense claims", x:70, y:15,   cl:"exp" },
+    { t:"Booking trains and flights",         s:"Travel booking", x:81, y:21,   cl:"exp" },
+    { t:"Per diem rates by country",          s:"Per diem",       x:73, y:29,   cl:"exp" },
+    { t:"Laptop replacement cycle",           s:"Laptop cycle",   x:75, y:54,   cl:"it"  },
+    { t:"VPN and remote access",              s:"VPN access",     x:86, y:60,   cl:"it"  },
+    { t:"Resetting your password",            s:"Password reset", x:77, y:67,   cl:"it"  },
+    { t:"Office opening hours",               s:"Office hours",   x:17, y:56,   cl:"work"},
+    { t:"Booking a desk",                     s:"Desk booking",   x:28, y:62,   cl:"work"},
+    { t:"Parking permits",                    s:"Parking",        x:20, y:69,   cl:"work"}
+  ];
+  const QUERIES = [
+    { q:"how many days off do I get?",  x:14,   y:15,   kw:"days off" },
+    { q:"can I claim my train ticket?", x:78,   y:15,   kw:"train ticket" },
+    { q:"my laptop screen is cracked",  x:81,   y:54,   kw:"laptop screen" }
+  ];
+  const K = 3;                       /* how many passages go on the desk */
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const svg  = document.getElementById("mapSvg");
+  const rank = document.getElementById("mapRank");
+  const cap  = document.getElementById("mapCap");
+  const NS   = "http://www.w3.org/2000/svg";
+  const el = (n, a) => { const e = document.createElementNS(NS, n);
+    for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+  /* ---- the field, drawn once ---- */
+  const linkNodes = [], dotNodes = [], lblNodes = [];
+  CLUSTERS.forEach(c => {
+    svg.appendChild(el("ellipse", { class:"hull", cx:c.cx, cy:c.cy, rx:c.rx, ry:c.ry,
+                                    fill:"var(" + c.c + ")" }));
+    const lb = el("text", { class:"hulllbl", x:c.cx, y:c.cy - c.ry - 1.4, "text-anchor":"middle" });
+    lb.textContent = c.label;
+    svg.appendChild(lb);
+  });
+  POINTS.forEach((p, i) => {
+    const ln = el("line", { class:"link", x1:0, y1:0, x2:p.x, y2:p.y });
+    svg.appendChild(ln); linkNodes.push(ln);
+  });
+  POINTS.forEach((p, i) => {
+    const right = p.x < 50;
+    const d = el("circle", { class:"dot", cx:p.x, cy:p.y, r:1.25 });
+    svg.appendChild(d); dotNodes.push(d);
+    const t = el("text", { class:"lbl", x:p.x + (right ? 2.6 : -2.6), y:p.y + .85,
+                           "text-anchor": right ? "start" : "end" });
+    t.textContent = p.s;
+    svg.appendChild(t); lblNodes.push(t);
+  });
+  const ring  = el("circle", { class:"ring qmark", cx:0, cy:0, r:0 });
+  const halo  = el("circle", { class:"qhalo qmark", cx:0, cy:0, r:2.8 });
+  const qdot  = el("circle", { class:"qdot qmark", cx:0, cy:0, r:1.5 });
+  [ring, halo, qdot].forEach(n => svg.appendChild(n));
+
+  /* ---- ranking: distance decides everything ---- */
+  const dist = (q, p) => Math.hypot(q.x - p.x, q.y - p.y);
+  const closeness = d => 1 / (1 + d / 10);          /* an illustration, not a cosine */
+
+  let mode = "meaning", current = 0, raf = null, timers = [];
+  function clearRun(){
+    if (raf) cancelAnimationFrame(raf), raf = null;
+    timers.forEach(clearTimeout); timers = [];
+  }
+  function resetField(){
+    dotNodes.forEach(d => d.classList.remove("lit", "far"));
+    lblNodes.forEach(l => l.classList.remove("lit", "far"));
+    linkNodes.forEach(l => l.classList.remove("in"));
+    [ring, halo, qdot].forEach(n => n.classList.remove("in"));
+    ring.setAttribute("r", 0);
+    rank.innerHTML = "";
+  }
+
+  function row(p, i, d, inDesk){
+    const wrap = document.createElement("div");
+    wrap.className = "rankrow" + (inDesk ? "" : " out");
+    const line = document.createElement("div");
+    line.className = "rankline";
+    const n = document.createElement("i"); n.textContent = (i + 1) + ".";
+    const b = document.createElement("b"); b.textContent = p.t;
+    const e = document.createElement("em"); e.textContent = closeness(d).toFixed(2);
+    line.append(n, b, e);
+    const bar = document.createElement("div");
+    bar.className = "rbar";
+    const fill = document.createElement("i");
+    bar.appendChild(fill);
+    wrap.append(line, bar);
+    rank.appendChild(wrap);
+    return { wrap, fill };
+  }
+  function cutline(text){
+    const c = document.createElement("div");
+    c.className = "cutline rankrow";
+    c.textContent = text;
+    rank.appendChild(c);
+    return c;
+  }
+
+  /* ---- by meaning: the ring grows, neighbours light up in order ---- */
+  function runMeaning(qi){
+    const q = QUERIES[qi];
+    resetField();
+    halo.setAttribute("cx", q.x); halo.setAttribute("cy", q.y);
+    qdot.setAttribute("cx", q.x); qdot.setAttribute("cy", q.y);
+    ring.setAttribute("cx", q.x); ring.setAttribute("cy", q.y);
+    linkNodes.forEach(l => { l.setAttribute("x1", q.x); l.setAttribute("y1", q.y); });
+
+    const ranked = POINTS.map((p, i) => ({ p, i, d: dist(q, p) })).sort((a, b) => a.d - b.d);
+    const shown = ranked.slice(0, K + 2);
+    const stop  = ranked[K - 1].d;
+    const rows  = [];
+
+    cap.innerHTML = "<b>Placed on the map</b>The question is filed the same way the passages were, so it lands among the ones about the same thing.";
+    [ring, halo, qdot].forEach(n => n.classList.add("in"));
+
+    let cut = null;
+    shown.forEach((r, idx) => {
+      if (idx === K) cut = cutline("cut off at " + K);
+      rows.push(row(r.p, idx, r.d, idx < K));
+    });
+    ranked.slice(K + 2).forEach(r => {
+      dotNodes[r.i].classList.add("far"); lblNodes[r.i].classList.add("far");
+    });
+
+    const light = idx => {
+      const r = shown[idx];
+      if (!r) return;
+      if (idx < K){
+        dotNodes[r.i].classList.add("lit");
+        lblNodes[r.i].classList.add("lit");
+        linkNodes[r.i].classList.add("in");
+      }
+      if (idx === K && cut) cut.classList.add("in");
+      rows[idx].wrap.classList.add("in");
+      rows[idx].fill.style.width = Math.round(closeness(r.d) / closeness(shown[0].d) * 100) + "%";
+    };
+
+    if (reduced){
+      shown.forEach((_, i) => light(i));
+      ring.setAttribute("r", stop);
+      settle(qi);
+      return;
+    }
+
+    /* the ring sweeps out to the cut-off; a passage lights as it is passed */
+    const dur = 1400, t0 = performance.now(), done = new Set();
+    const grow = now => {
+      const k = Math.min(1, (now - t0) / dur);
+      const r = stop * 1.06 * k;
+      ring.setAttribute("r", r.toFixed(2));
+      shown.forEach((s, i) => { if (!done.has(i) && s.d <= r){ done.add(i); light(i); } });
+      if (k < 1) raf = requestAnimationFrame(grow);
+      else { raf = null; ring.setAttribute("r", stop.toFixed(2));
+             timers.push(setTimeout(() => settle(qi), 420)); }
+    };
+    raf = requestAnimationFrame(grow);
+  }
+  function settle(qi){
+    const q = QUERIES[qi];
+    ring.classList.remove("in");
+    cap.innerHTML = "<b>Three nearest go on the desk</b>Not one of them contains “" + q.kw +
+      "”. They were found by sitting close, not by sharing words. Three is the cut-off, so the fourth stayed in the drawer.";
+  }
+
+  /* ---- by exact words: the same question, matched literally ---- */
+  function runWords(qi){
+    clearRun(); resetField();
+    const q = QUERIES[qi];
+    const hits = POINTS.map((p, i) => ({ p, i }))
+                       .filter(o => o.p.t.toLowerCase().includes(q.kw));
+    halo.setAttribute("cx", q.x); halo.setAttribute("cy", q.y);
+    qdot.setAttribute("cx", q.x); qdot.setAttribute("cy", q.y);
+    [halo, qdot].forEach(n => n.classList.add("in"));
+    dotNodes.forEach(d => d.classList.add("far"));
+    lblNodes.forEach(l => l.classList.add("far"));
+
+    hits.forEach(o => { dotNodes[o.i].classList.remove("far");
+                        dotNodes[o.i].classList.add("lit"); });
+    const p = document.createElement("div");
+    p.className = "rankrow out in";
+    const line = document.createElement("div");
+    line.className = "rankline solo";
+    const b = document.createElement("b");
+    b.textContent = hits.length
+      ? hits.length + (hits.length === 1 ? " passage contains " : " passages contain ") + "“" + q.kw + "”"
+      : "No passage contains “" + q.kw + "”";
+    line.appendChild(b);
+    p.appendChild(line);
+    rank.appendChild(p);
+    cap.innerHTML = "<b>Nothing found</b>The answer is sitting right there, in the passage the question landed next to. Matching the words never reaches it, because your words are not the ones the document used.";
+  }
+
+  function ask(qi){
+    current = qi;
+    clearRun();
+    document.querySelectorAll("#mapChips .chip").forEach((c, i) =>
+      c.setAttribute("aria-pressed", String(i === qi)));
+    mode === "meaning" ? runMeaning(qi) : runWords(qi);
+  }
+  function setMode(next){
+    mode = next;
+    document.getElementById("mMeaning").setAttribute("aria-pressed", String(next === "meaning"));
+    document.getElementById("mWords").setAttribute("aria-pressed", String(next === "words"));
+    ask(current);
+  }
+
+  const chipHost = document.getElementById("mapChips");
+  QUERIES.forEach((q, i) => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.setAttribute("aria-pressed", "false");
+    b.textContent = q.q;
+    b.addEventListener("click", () => ask(i));
+    chipHost.appendChild(b);
+  });
+  document.getElementById("mMeaning").addEventListener("click", () => setMode("meaning"));
+  document.getElementById("mWords").addEventListener("click", () => setMode("words"));
+
+  /* the ring sweeping out is the whole explanation, so it waits to be watched */
+  if (reduced || !("IntersectionObserver" in window)) ask(0);
+  else {
+    let started = false;
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting && !started){ started = true; ask(0); io.disconnect(); } });
+    }, { threshold:.35 });
+    io.observe(svg);
+  }
+})();
 </script>
 </body>
 </html>
