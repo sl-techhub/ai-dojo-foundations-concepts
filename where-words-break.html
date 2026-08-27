@@ -1,0 +1,836 @@
+<title>Where Words Break</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --blade:#DF3C4B;
+  --blade-soft:rgba(223,60,75,.14);
+  --unk:#DF3C4B;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;
+  font-size:1.0625rem;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:63ch}
+
+h1,h2,h3,.ui,.eyebrow,button,input,th,.stat-n,.tab{
+  font-family:"Poppins",system-ui,sans-serif;
+}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{
+  font-weight:800;
+  font-size:clamp(2.6rem,1.4rem + 6.4vw,5.4rem);
+  line-height:.94;letter-spacing:-.025em;
+}
+h2{
+  font-weight:700;
+  font-size:clamp(1.6rem,1.2rem + 1.8vw,2.5rem);
+  line-height:1.06;letter-spacing:-.018em;
+}
+h3{
+  font-weight:600;
+  font-size:1.0625rem;line-height:1.3;letter-spacing:-.008em;
+}
+p{margin:0}
+.eyebrow{
+  font-size:var(--step);font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);
+}
+.lede{font-size:clamp(1.1rem,1.02rem + .4vw,1.3rem);color:var(--ink-2);line-height:1.55}
+.note{font-size:.95rem;color:var(--muted)}
+strong{font-weight:500;color:var(--ink)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+
+/* ---------- structure ---------- */
+header.hero{position:relative}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+header.hero{padding:clamp(2rem,5vh,3.6rem) 0 2.2rem}
+.hero-top{display:flex;flex-direction:column;gap:1.1rem}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+section.station{padding:clamp(3rem,7vh,5.5rem) 0;border-top:1px solid var(--line)}
+.station-head{display:flex;gap:clamp(1rem,3vw,2.4rem);align-items:baseline;margin-bottom:1.6rem}
+.num{
+  font-family:"IBM Plex Mono",monospace;font-size:var(--step);font-weight:600;
+  color:var(--blade);letter-spacing:.08em;padding-top:.5em;flex:none;
+}
+.station-head > div{display:flex;flex-direction:column;gap:.7rem}
+
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;
+  box-shadow:var(--shadow);
+}
+.panel-pad{padding:clamp(1.1rem,3vw,1.9rem)}
+.scroller{overflow-x:auto}
+
+/* ---------- token chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:4px 3px;align-items:flex-start}
+.chip{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.94rem;line-height:1;
+  padding:.46em .4em;border-radius:3px;
+  white-space:pre;
+  background:var(--surface-2);color:var(--ink);
+  border:1px solid rgba(48,48,48,.12);
+}
+.chip .sp{opacity:.42}
+.chip.unk{
+  background:transparent;color:var(--unk);
+  border:1px dashed var(--unk);font-weight:600;
+}
+.chips.tight{gap:2px 1px}
+.chips.tight .chip{font-size:.82rem;padding:.4em .3em}
+
+/* ---------- hero cutting animation ---------- */
+.cutter{position:relative;padding:clamp(1.4rem,4vw,2.4rem) clamp(1rem,3vw,2rem)}
+.cutrow{
+  position:relative;display:flex;flex-wrap:wrap;align-items:flex-start;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:clamp(1.05rem,.8rem + 1.3vw,1.75rem);
+  line-height:1;
+}
+.tok{
+  position:relative;display:inline-block;white-space:pre;
+  padding:.5em .06em;border-radius:3px;
+  background:transparent;color:var(--ink);
+  transition:background-color .34s ease,color .34s ease,padding .34s ease,margin .34s ease;
+}
+.tok .sp{opacity:0;transition:opacity .3s ease}
+.tok.cut{padding:.5em .34em;margin-right:5px;margin-bottom:5px;background:var(--surface-2)}
+.tok.cut .sp{opacity:.4}
+.blade{
+  position:absolute;width:2px;background:var(--blade);border-radius:2px;
+  opacity:0;pointer-events:none;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),height .2s ease,opacity .2s ease;
+  box-shadow:0 0 0 5px var(--blade-soft);
+}
+.blade.live{opacity:1}
+.blade::after{
+  content:"";position:absolute;left:-3px;top:-7px;
+  width:8px;height:8px;background:var(--blade);
+  clip-path:polygon(50% 100%,0 0,100% 0);
+}
+
+.controls{
+  display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+  padding:.85rem clamp(1rem,3vw,2rem);border-top:1px solid var(--line);
+}
+button{
+  font-size:.9rem;font-weight:600;
+  padding:.5em .95em;border-radius:4px;cursor:pointer;
+  background:var(--ink);color:var(--bg);border:1px solid var(--ink);
+  transition:opacity .15s ease;
+}
+button:hover{opacity:.82}
+button.ghost{background:transparent;color:var(--ink-2);border-color:var(--line-strong)}
+button.ghost:hover{color:var(--ink);border-color:var(--ink)}
+button:focus-visible,input:focus-visible,.tab:focus-visible{
+  outline:2px solid var(--blade);outline-offset:2px;
+}
+.counter{
+  margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.9rem;
+  color:var(--muted);font-variant-numeric:tabular-nums;
+}
+.counter b{color:var(--ink);font-weight:600}
+
+/* ---------- three ways ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);padding:0 clamp(.5rem,2vw,1rem)}
+.tab{
+  appearance:none;background:transparent;border:0;border-bottom:2px solid transparent;
+  color:var(--muted);font-size:.9rem;font-weight:600;
+  padding:.85em .8em;cursor:pointer;border-radius:0;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blade)}
+
+table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
+th,td{text-align:left;padding:.72rem .9rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{
+  font-size:var(--step);font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);
+}
+td:first-child{font-family:"Poppins",sans-serif;font-weight:600;}
+tbody tr:last-child td{border-bottom:0}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- fact grid ---------- */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(276px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.fact{background:var(--surface);padding:1.25rem 1.3rem;display:flex;flex-direction:column;gap:.7rem}
+.fact p{font-size:.98rem;color:var(--ink-2);line-height:1.5}
+.pair{display:flex;flex-direction:column;gap:.45rem}
+.pair-row{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.pair-row .lbl{
+  font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--muted);
+  min-width:2.6em;font-variant-numeric:tabular-nums;
+}
+
+/* ---------- stats ---------- */
+.stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line)}
+.stat{flex:1 1 150px;padding:1rem 1.2rem;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat-n{
+  font-size:1.85rem;font-weight:700;
+  line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+}
+.stat-l{font-size:var(--step);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-family:"Poppins",sans-serif;font-weight:600;margin-top:.5rem;display:block}
+
+input[type="text"]{
+  width:100%;background:var(--surface-2);color:var(--ink);
+  border:1px solid var(--line-strong);border-radius:4px;
+  padding:.75em .85em;font-size:1rem;font-family:"IBM Plex Mono",monospace;
+}
+.field{display:flex;flex-direction:column;gap:.6rem}
+
+footer{border-top:1px solid var(--line);padding:3rem 0 4rem}
+.closing{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.8rem;margin-bottom:2.6rem}
+.closing h3{margin-bottom:.5rem}
+.closing p{font-size:.98rem;color:var(--ink-2)}
+a{color:var(--ink);text-decoration-color:var(--line-strong);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--blade)}
+
+.disclosure{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
+  padding:1.15rem 1.3rem;font-size:.94rem;color:var(--muted);max-width:70ch;
+}
+.disclosure strong{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="where-words-break.html" aria-current="page">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <div class="hero-top">
+      <h1>Where words<br>break</h1>
+      <p class="lede measure">A model never sees your sentence. It sees numbers, each standing for a <strong>piece</strong> of text — usually not a whole word.</p>
+    </div>
+  </header>
+
+  <div class="panel" style="margin-bottom:1rem">
+    <div class="cutter">
+      <div class="cutrow" id="cutrow" aria-live="off"></div>
+      <div class="blade" id="blade"></div>
+    </div>
+    <div class="controls">
+      <button id="play">Cut it up</button>
+      <button class="ghost" id="step">Step</button>
+      <button class="ghost" id="reset">Reset</button>
+      <span class="counter"><b id="tcount">0</b> tokens · <span id="ccount">37</span> characters</span>
+    </div>
+  </div>
+  <p class="note measure">Nine tokens, thirty-eight characters. <code>Tokenization</code> is two pieces, not one, and every space travels with the word after it. Same piece, same colour.</p>
+
+  <!-- 01 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">01</span>
+      <div>
+        <span class="eyebrow">The choice nobody has to make twice</span>
+        <h2>Three ways to cut a sentence</h2>
+        <p class="lede measure">The two obvious options both fail. Subwords are the compromise that works.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="tabs" role="tablist" aria-label="Segmentation strategies">
+        <button class="tab" role="tab" aria-selected="true" data-mode="word">Whole words</button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="char">Single characters</button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="sub">Subwords &nbsp;←&nbsp; what is actually used</button>
+      </div>
+      <div class="panel-pad">
+        <div class="chips" id="waysChips"></div>
+        <p class="note" id="waysNote" style="margin-top:1.1rem"></p>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-n" id="waysCount">6</span><span class="stat-l">Units</span></div>
+        <div class="stat"><span class="stat-n" id="waysVocab">millions</span><span class="stat-l">Vocabulary needed</span></div>
+        <div class="stat"><span class="stat-n" id="waysUnk">yes</span><span class="stat-l">Unknown words?</span></div>
+      </div>
+    </div>
+
+    <div class="panel scroller" style="margin-top:1rem">
+      <table>
+        <thead>
+          <tr><th>Strategy</th><th>Vocabulary</th><th>A word it never saw</th><th>Units here</th><th>Meaning per unit</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Whole words</td><td>Millions — and still short</td><td>Becomes <code>[UNK]</code>. Gone.</td><td class="n">6</td><td>High</td></tr>
+          <tr><td>Single characters</td><td>About 100</td><td>Spells out fine</td><td class="n">37</td><td>None</td></tr>
+          <tr><td>Subwords</td><td>Around 100,000</td><td>Falls back to known pieces</td><td class="n">7</td><td>Partial — and enough</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note measure" style="margin-top:1rem">Same unit count, a vocabulary a hundred times smaller, and nothing it cannot spell.</p>
+  </section>
+
+  <!-- 02 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">02</span>
+      <div>
+        <span class="eyebrow">Not grammar — statistics</span>
+        <h2>The seams are learned, not logical</h2>
+        <p class="lede measure">Nobody wrote rules for where to cut. Frequency did. Six habits follow.</p>
+      </div>
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <h3>Common survives whole. Rare shatters.</h3>
+        <p>Frequency decides, not length.</p>
+        <div class="pair" id="f-freq"></div>
+      </div>
+      <div class="fact">
+        <h3>The space belongs to the word.</h3>
+        <p>Two different entries. Spaces are not free, and not separate.</p>
+        <div class="pair" id="f-space"></div>
+      </div>
+      <div class="fact">
+        <h3>Capitals are a different word.</h3>
+        <p>Shouting costs more: all-caps rarely has an entry of its own.</p>
+        <div class="pair" id="f-caps"></div>
+      </div>
+      <div class="fact">
+        <h3>Numbers break in runs of digits.</h3>
+        <p>Which is why models fumble arithmetic — never <code>4567</code>, only chunks of it.</p>
+        <div class="pair" id="f-num"></div>
+      </div>
+      <div class="fact">
+        <h3>Everything not English costs more.</h3>
+        <p>Built mostly on English. Same meaning, bigger bill.</p>
+        <div class="pair" id="f-lang"></div>
+      </div>
+      <div class="fact">
+        <h3>Pieces get reused.</h3>
+        <p>A few fragments compose words it has never met.</p>
+        <div class="pair" id="f-reuse"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">03</span>
+      <div>
+        <span class="eyebrow">Real content, fully cut</span>
+        <h2>The same page, three times over</h2>
+        <p class="lede measure">Identical effort to write, very different bills. Hover a piece for its size.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="tabs" role="tablist" aria-label="Sample content">
+        <button class="tab" role="tab" aria-selected="true" data-sample="email">A work email</button>
+        <button class="tab" role="tab" aria-selected="false" data-sample="code">A line of code</button>
+        <button class="tab" role="tab" aria-selected="false" data-sample="pl">The same, in Polish</button>
+      </div>
+      <div class="panel-pad">
+        <p class="mono" id="sampleRaw" style="font-size:.95rem;color:var(--muted);margin-bottom:1.1rem"></p>
+        <div class="chips" id="sampleChips"></div>
+        <p class="note" id="sampleNote" style="margin-top:1.2rem"></p>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-n" id="sChars">0</span><span class="stat-l">Characters</span></div>
+        <div class="stat"><span class="stat-n" id="sToks">0</span><span class="stat-l">Tokens</span></div>
+        <div class="stat"><span class="stat-n" id="sRatio">0</span><span class="stat-l">Characters per token</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">04</span>
+      <div>
+        <span class="eyebrow">Your turn</span>
+        <h2>Break your own sentence</h2>
+        <p class="lede measure">Type anything and watch where it splits.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-pad field">
+        <label class="eyebrow" for="tryInput">Text</label>
+        <input type="text" id="tryInput" value="An ordinary English sentence stays cheap, but antidisestablishmentarianism and INV-2026-00847 do not." autocomplete="off" spellcheck="false">
+        <div class="chips" id="tryChips" style="margin-top:.6rem"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-n" id="tChars">0</span><span class="stat-l">Characters</span></div>
+        <div class="stat"><span class="stat-n" id="tToks">0</span><span class="stat-l">Tokens (approx.)</span></div>
+        <div class="stat"><span class="stat-n" id="tRatio">0</span><span class="stat-l">Characters per token</span></div>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:1rem">A rough imitation. The examples above are hand-checked.</p>
+  </section>
+
+  <footer>
+    <div class="closing">
+      <div>
+        <h3>Why the count matters</h3>
+        <p>Every token in and out is billed. Bad fragmenting costs more for the same meaning.</p>
+      </div>
+      <div>
+        <h3>Why the desk fills up</h3>
+        <p>Measured in tokens, not pages. Dense documents fill it fast.</p>
+      </div>
+      <div>
+        <h3>What to remember</h3>
+        <p>Fragments in, fragments counted. The count is the currency.</p>
+      </div>
+    </div>
+    <div class="disclosure">
+      <strong>About these numbers.</strong> The examples follow <code>cl100k_base</code>, the GPT-4 family's tokenizer. Seams differ by model; the Polish one is approximate. For exact counts use
+      <a href="https://platform.openai.com/tokenizer" target="_blank" rel="noopener">OpenAI's tokenizer page</a>.
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const enc = new TextEncoder();
+
+/* Colour marks token IDENTITY, not position.
+   The scope is one example: every row and every card starts the palette again, so a
+   long page never drains it. Twelve swatches, checked so the closest pair sits at
+   ΔE 9 — comfortably tellable apart. Inside an example the same piece always keeps
+   the same colour; past twelve distinct pieces the palette cycles, which means a
+   colour can return, but only after twelve others, never beside itself. Handing 26
+   pieces 26 tellable-apart colours is not possible, so this is the honest ceiling. */
+const PALETTE = [
+  ["#F4CBBE","#6A2E1B"], ["#F4E6BE","#6A561B"], ["#DEF0A8","#566A1B"], ["#BAF0A8","#2E6A1B"],
+  ["#A8F0BA","#1B6A2E"], ["#A8F0DE","#1B6A56"], ["#BEE6F4","#1B566A"], ["#BECBF4","#1B2E6A"],
+  ["#CBBEF4","#2E1B6A"], ["#E6BEF4","#561B6A"], ["#F4BEE6","#6A1B56"], ["#F4BECB","#6A1B2E"]
+];
+function paintScope(tokens){
+  const map = new Map();
+  for (const t of tokens){
+    if (!map.has(t)) map.set(t, PALETTE[map.size % PALETTE.length]);
+  }
+  return map;
+}
+function paintToken(el, colour){
+  if (!colour) return;
+  el.style.background = colour[0];
+  el.style.color = colour[1];
+}
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* show leading spaces as a faint interpunct so the space-is-part-of-the-token
+   lesson is visible rather than asserted */
+function chipHTML(t){
+  return t.replace(/ /g, '<span class="sp">·</span>');
+}
+function tip(t){
+  return t.length + (t.length === 1 ? " char" : " chars") + " · " + enc.encode(t).length + " bytes";
+}
+function renderChips(host, tokens, opts){
+  const o = opts || {};
+  const colours = o.colours || paintScope(tokens);
+  host.innerHTML = "";
+  tokens.forEach((t, i) => {
+    const el = document.createElement("span");
+    const colour = colours.get(t);
+    if (o.unk && o.unk.includes(i)) el.className = "chip unk";
+    else {
+      el.className = "chip";
+      paintToken(el, colour);
+    }
+    el.innerHTML = chipHTML(t);
+    el.title = tip(t);
+    host.appendChild(el);
+  });
+}
+
+/* ================= hero: the cut ================= */
+const HERO = ["Token","ization"," is"," not"," the"," same"," as"," words","."];
+const cutrow = document.getElementById("cutrow");
+const blade  = document.getElementById("blade");
+const tcount = document.getElementById("tcount");
+document.getElementById("ccount").textContent = HERO.join("").length;
+
+let toks = [], at = 0, timer = null;
+
+const heroColours = paintScope(HERO);
+function buildHero(){
+  cutrow.innerHTML = "";
+  toks = HERO.map((t, i) => {
+    const el = document.createElement("span");
+    el.className = "tok";
+    el.dataset.tokText = t;
+    el.innerHTML = chipHTML(t);
+    el.title = tip(t);
+    cutrow.appendChild(el);
+    return el;
+  });
+}
+function placeBlade(){
+  if (at === 0 || at > toks.length) { blade.classList.remove("live"); return; }
+  const el = toks[at - 1];
+  const h = el.offsetHeight;
+  blade.style.height = h + "px";
+  blade.style.transform = "translate(" + (el.offsetLeft + el.offsetWidth + 1) + "px," + el.offsetTop + "px)";
+  blade.classList.add("live");
+}
+function stepOnce(){
+  if (at >= toks.length) return false;
+  paintToken(toks[at], heroColours.get(toks[at].dataset.tokText));
+  toks[at].classList.add("cut");
+  at++;
+  tcount.textContent = at;
+  requestAnimationFrame(placeBlade);
+  return at < toks.length;
+}
+function resetHero(){
+  stop();
+  at = 0;
+  tcount.textContent = "0";
+  toks.forEach(t => { t.classList.remove("cut"); t.style.background = ""; t.style.color = ""; });
+  blade.classList.remove("live");
+  document.getElementById("play").textContent = "Cut it up";
+}
+function stop(){
+  if (timer) { clearTimeout(timer); timer = null; }
+  document.getElementById("play").textContent = at >= toks.length ? "Again" : "Cut it up";
+}
+function play(){
+  if (at >= toks.length) resetHero();
+  document.getElementById("play").textContent = "Pause";
+  const tick = () => {
+    const more = stepOnce();
+    if (more) { timer = setTimeout(tick, reduced ? 20 : 430); }
+    else { timer = null; setTimeout(() => { blade.classList.remove("live"); }, 900);
+           document.getElementById("play").textContent = "Again"; }
+  };
+  tick();
+}
+document.getElementById("play").addEventListener("click", () => { timer ? stop() : play(); });
+document.getElementById("step").addEventListener("click", () => { stop(); stepOnce(); });
+document.getElementById("reset").addEventListener("click", resetHero);
+window.addEventListener("resize", () => requestAnimationFrame(placeBlade));
+buildHero();
+
+/* ================= 01: three ways ================= */
+const SENT = "Tokenization splits text into pieces.";
+const WAYS = {
+  word: {
+    tokens: ["Tokenization","splits","text","into","pieces","."],
+    unk: [0],
+    count: "6", vocab: "millions", unk_s: "yes",
+    note: "Six tidy units — but the vocabulary must hold every word there is, and still will not. " +
+          "“Tokenization” is rare enough to be dropped as [UNK]."
+  },
+  char: {
+    tokens: SENT.split(""),
+    unk: [],
+    count: "37", vocab: "~100", unk_s: "no",
+    note: "Nothing is ever unknown and the vocabulary is tiny — but 37 units for one short sentence, " +
+          "and no unit carries any meaning."
+  },
+  sub: {
+    tokens: ["Token","ization"," splits"," text"," into"," pieces","."],
+    unk: [],
+    count: "7", vocab: "~100k", unk_s: "no",
+    note: "Seven units. Common words stay whole, the rare one falls into two pieces it knows. " +
+          "Nothing unknown, nothing wasted — which is why every model works this way."
+  }
+};
+const waysChips = document.getElementById("waysChips");
+function showWay(mode){
+  const w = WAYS[mode];
+  renderChips(waysChips, w.tokens, { unk: w.unk });
+  waysChips.classList.toggle("tight", mode === "char");
+  document.getElementById("waysCount").textContent = w.count;
+  document.getElementById("waysVocab").textContent = w.vocab;
+  document.getElementById("waysUnk").textContent = w.unk_s;
+  document.getElementById("waysNote").textContent = w.note;
+}
+document.querySelectorAll("[data-mode]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    showWay(btn.dataset.mode);
+  });
+});
+showWay("word");
+
+/* ================= 02: facts ================= */
+function pairRow(host, label, tokens, colours){
+  const row = document.createElement("div");
+  row.className = "pair-row";
+  const l = document.createElement("span");
+  l.className = "lbl";
+  l.textContent = label;
+  row.appendChild(l);
+  const chips = document.createElement("div");
+  chips.className = "chips";
+  renderChips(chips, tokens, { colours });
+  row.appendChild(chips);
+  host.appendChild(row);
+}
+const FACTS = {
+  "f-freq": [
+    ["1", [" revenue"]],
+    ["2", [" San","oma"]],
+    ["6", [" anti","dis","establish","ment","arian","ism"]]
+  ],
+  "f-space": [
+    ["2", ["Hello"," there"]],
+    ["2", ["the"," the"]]
+  ],
+  "f-caps": [
+    ["1", [" urgent"]],
+    ["3", [" UR","GE","NT"]]
+  ],
+  "f-num": [
+    ["3", ["123","456","7"]],
+    ["2", ["202","6"]]
+  ],
+  "f-lang": [
+    ["5", ["Thank"," you"," for"," coming","."]],
+    ["9", ["D","zię","ku","jemy"," za"," przy","by","cie","."]]
+  ],
+  "f-reuse": [
+    ["2", [" token","ization"]],
+    ["2", [" token","izer"]],
+    ["2", [" digit","ization"]]
+  ]
+};
+Object.keys(FACTS).forEach(id => {
+  const host = document.getElementById(id);
+  const colours = paintScope(FACTS[id].flatMap(([, toks]) => toks));
+  FACTS[id].forEach(([label, toks]) => pairRow(host, label, toks, colours));
+});
+
+/* ================= 03: real content ================= */
+const SAMPLES = {
+  email: {
+    tokens: ["Please"," check"," the"," Q","3"," revenue"," forecast"," before"," Thursday","'s"," board"," meeting","."],
+    note: "The cheap case: close to four characters per token, one piece per word — except “Q3”, " +
+          "a letter plus a digit, and the possessive “’s”."
+  },
+  code: {
+    tokens: ["const"," total"," ="," items",".re","duce","((","a",","," b",")"," =>"," a"," +"," b",","," ","0",");"],
+    note: "Code is dense: punctuation clusters, names split mid-word (“.re” + “duce”), " +
+          "barely two and a half characters per token."
+  },
+  pl: {
+    tokens: ["D","zię","ku","jemy"," za"," ud","zia","ł"," w"," dz","isie","js","zej"," ses","ji"," AI"," Do","jo","."],
+    note: "Diacritics and inflected endings have few entries of their own, so words come apart into two- " +
+          "and three-character pieces — half the characters per token of the English above.",
+    approx: true
+  }
+};
+const sampleChips = document.getElementById("sampleChips");
+function showSample(key){
+  const s = SAMPLES[key];
+  const raw = s.tokens.join("");
+  document.getElementById("sampleRaw").textContent = raw;
+  renderChips(sampleChips, s.tokens);
+  document.getElementById("sChars").textContent = raw.length;
+  document.getElementById("sToks").textContent = s.tokens.length + (s.approx ? "*" : "");
+  document.getElementById("sRatio").textContent = (raw.length / s.tokens.length).toFixed(1);
+  document.getElementById("sampleNote").textContent = s.note + (s.approx ? " (*approximate split)" : "");
+}
+document.querySelectorAll("[data-sample]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-sample]").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    showSample(btn.dataset.sample);
+  });
+});
+showSample("email");
+
+/* ================= 04: approximate tokenizer =================
+   Not a real BPE vocabulary. It reproduces the visible habits:
+   leading-space attachment, digit runs, case boundaries, suffix peeling,
+   and fragmenting of anything long or non-ASCII.                       */
+const COMMON = new Set(("the be to of and a in that have i it for not on with he as you do at this but his by from " +
+  "they we say her she or an will my one all would there their what so up out if about who get which go me when make " +
+  "can like time no just him know take people into year your good some could them see other than then now look only " +
+  "come its over think also back after use two how our work first well way even new want because any these give day " +
+  "most us please check revenue forecast before board meeting thank coming session token model context window prompt " +
+  "agent tool document rule skill design system value team learn text piece word number cost price count " +
+  "english polish ordinary sentence invoice characters character unusual multiply pieces paste stays cheap " +
+  "rare prose greeting language answer question example").split(" "));
+const SUFFIXES = ["ization","ationally","ability","ational","ization","ically","ations","ingly","ation","ition","ities",
+  "ously","ments","ility","ance","ence","ing","ers","ion","ity","ies","ive","ous","ful","ish","est","ise","ize","ly",
+  "ed","es","er","al","ic","s"];
+
+function splitWord(word){
+  const bare = word.replace(/^\s+/, "");
+  // decide this BEFORE peeling anything: a frequent or short word has its own
+  // vocabulary entry, so a real tokenizer never cuts it up
+  if (COMMON.has(bare.toLowerCase()) || bare.length <= 8) return [word];
+
+  const out = [];
+  let rest = word;
+  // peel one or two suffixes off the end while the stem stays substantial
+  for (let pass = 0; pass < 2; pass++) {
+    for (const suf of SUFFIXES) {
+      if (rest.length - suf.length >= 4 && rest.toLowerCase().endsWith(suf)) {
+        out.unshift(rest.slice(rest.length - suf.length));
+        rest = rest.slice(0, rest.length - suf.length);
+        break;
+      }
+    }
+  }
+  // whatever is left: keep it if it is short or familiar, otherwise slice it up
+  const chunks = [];
+  let head = rest;
+  const familiar = COMMON.has(head.toLowerCase().trim());
+  if (familiar || head.replace(/^\s+/, "").length <= 8) {
+    chunks.push(head);
+  } else {
+    const lead = head.match(/^\s*/)[0];
+    let body = head.slice(lead.length);
+    let size = 5;
+    let firstChunk = true;
+    while (body.length) {
+      const take = body.length - size < 2 ? body.length : size;
+      chunks.push((firstChunk ? lead : "") + body.slice(0, take));
+      body = body.slice(take);
+      size = 4;
+      firstChunk = false;
+    }
+  }
+  return chunks.concat(out);
+}
+
+function approxTokenize(text){
+  if (!text) return [];
+  const out = [];
+  // leading whitespace binds to the run that follows it
+  const re = /\s*(?:[A-Za-z]+|[0-9]+|[^\sA-Za-z0-9]|$)|\s+/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const chunk = m[0];
+    if (!chunk) { if (re.lastIndex >= text.length) break; re.lastIndex++; continue; }
+    const lead = chunk.match(/^\s*/)[0];
+    const body = chunk.slice(lead.length);
+
+    if (/^[0-9]+$/.test(body)) {
+      // digits break in runs of up to three
+      let d = body, first = true;
+      while (d.length) {
+        const take = Math.min(3, d.length);
+        out.push((first ? lead : "") + d.slice(0, take));
+        d = d.slice(take);
+        first = false;
+      }
+    } else if (/^[A-Za-z]+$/.test(body)) {
+      if (body === body.toUpperCase() && body.length > 2) {
+        // all-caps has no entry of its own: two letters at a time
+        let u = body, first = true;
+        while (u.length) {
+          const take = u.length === 3 ? 3 : Math.min(2, u.length);
+          out.push((first ? lead : "") + u.slice(0, take));
+          u = u.slice(take);
+          first = false;
+        }
+      } else {
+        splitWord(lead + body).forEach(t => out.push(t));
+      }
+    } else if (body.length) {
+      // punctuation, diacritics, emoji: non-ASCII is expensive, one piece each
+      out.push(lead + body);
+    } else if (lead) {
+      out.push(lead);
+    }
+    if (m.index === re.lastIndex) re.lastIndex++;
+  }
+  return out.filter(t => t.length);
+}
+
+const tryInput = document.getElementById("tryInput");
+const tryChips = document.getElementById("tryChips");
+function runTry(){
+  const text = tryInput.value;
+  const toks = approxTokenize(text);
+  renderChips(tryChips, toks);
+  tryChips.classList.toggle("tight", toks.length > 40);
+  document.getElementById("tChars").textContent = text.length;
+  document.getElementById("tToks").textContent = toks.length;
+  document.getElementById("tRatio").textContent = toks.length ? (text.length / toks.length).toFixed(1) : "0";
+}
+tryInput.addEventListener("input", runTry);
+runTry();
+</script>

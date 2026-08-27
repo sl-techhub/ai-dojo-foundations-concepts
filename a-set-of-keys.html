@@ -1,0 +1,481 @@
+<title>A Set of Keys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --wire:#4A3DA6;
+  --wire-soft:rgba(74,61,166,.11);
+  --live:#186B45;
+  --live-soft:rgba(24,107,69,.12);
+  --idle:#AEBBC0;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;font-size:1.0625rem;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:56ch}
+
+h1,h2,.eyebrow,button,.chip,.stat span,.statn,.tag{
+  font-family:"Poppins",system-ui,sans-serif}
+h1,h2{text-wrap:balance;margin:0}
+h1{font-weight:800;
+   font-size:clamp(2.3rem,1.2rem + 5.6vw,4.6rem);line-height:.95;letter-spacing:-.025em}
+h2{font-weight:700;
+   font-size:clamp(1.45rem,1.15rem + 1.4vw,2.1rem);line-height:1.08;letter-spacing:-.018em}
+p{margin:0}
+.eyebrow{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);}
+.lede{font-size:clamp(1.05rem,1rem + .35vw,1.2rem);color:var(--ink-2)}
+.note{font-size:.92rem;color:var(--muted)}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+header.hero{position:relative}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+header.hero{padding:clamp(2rem,5vh,3.6rem) 0 1.8rem;display:flex;flex-direction:column;gap:1rem}
+section{padding:clamp(2.4rem,6vh,4.2rem) 0;border-top:1px solid var(--line)}
+.head{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.pad{padding:clamp(1rem,3vw,1.8rem)}
+
+button{font-size:.86rem;font-weight:600;
+  padding:.45em .9em;border-radius:4px;cursor:pointer;
+  background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+button:hover{color:var(--ink);border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ================= the loop ================= */
+svg{display:block;width:100%;height:auto;overflow:visible}
+.lp-path{fill:none;stroke:var(--line-strong);stroke-width:2}
+.lp-arrow{fill:var(--line-strong)}
+.lp-box{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.5;rx:6}
+.lp-box.on{fill:var(--wire-soft);stroke:var(--wire);stroke-width:2}
+.lp-box.act{fill:var(--live-soft);stroke:var(--live);stroke-width:2}
+.lp-t{fill:var(--ink);font-family:"Poppins",sans-serif;font-weight:700;font-size:19px;text-anchor:middle}
+.lp-s{fill:var(--muted);font-family:"Poppins",sans-serif;font-size:14px;text-anchor:middle}
+.lp-edge{fill:var(--muted);font-family:"Poppins",sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.14em;text-anchor:middle}
+.lp-bound{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:5 5;opacity:.65}
+.lp-boundt{fill:var(--muted);font-family:"Poppins",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.16em;text-anchor:middle}
+#packet{transition:opacity .3s ease}
+#packet .core{fill:var(--wire)}
+#packet .halo{fill:var(--wire);opacity:.18}
+.payload{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--ink);
+  border-left:3px solid var(--wire);background:var(--wire-soft);
+  padding:.5em .7em;border-radius:0 4px 4px 0;margin-top:.6rem;
+  overflow-x:auto;white-space:nowrap;transition:opacity .25s ease}
+.payload.off{opacity:0}
+
+.loopbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+  padding:.75rem clamp(1rem,3vw,1.8rem);border-top:1px solid var(--line)}
+.callstat{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--muted)}
+.caption{font-size:.98rem;color:var(--ink-2);min-height:3.4em}
+.caption b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--accent);
+  font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+
+/* ================= tool chips ================= */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:.5rem;
+  padding:0 clamp(1rem,3vw,1.8rem) 1rem}
+.chip{border:1px solid var(--line);border-radius:5px;background:var(--surface-2);
+  padding:.6rem .7rem;display:flex;flex-direction:column;gap:.25rem;
+  transition:border-color .3s ease,background-color .3s ease}
+.chip.on{border-color:var(--live);background:var(--live-soft)}
+.chip b{font-size:.82rem;font-weight:700;color:var(--muted)}
+.chip.on b{color:var(--ink)}
+.chip span{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--muted);line-height:1.5;
+  word-break:break-word}
+.chip.on span{color:var(--ink-2)}
+.toolstat{display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;padding:0 clamp(1rem,3vw,1.8rem) 1.1rem}
+.stat{display:flex;align-items:baseline;gap:.4rem}
+.statn{font-size:1.35rem;font-weight:700;line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--wire)}
+.stat span{font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+
+/* ================= before / after ================= */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 clamp(.5rem,2vw,1rem)}
+.tab{appearance:none;background:transparent;border:0;border-bottom:2px solid transparent;
+  color:var(--muted);font-size:.88rem;font-weight:600;padding:.8em .8em;cursor:pointer;border-radius:0;
+  font-family:"Poppins",sans-serif}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.nm-node{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.5;rx:5}
+.nm-t{fill:var(--ink-2);font-family:"Poppins",sans-serif;font-weight:600;font-size:14px}
+.nm-hub{fill:var(--wire-soft);stroke:var(--wire);stroke-width:2;rx:7}
+.nm-hubt{fill:var(--wire);font-family:"Poppins",sans-serif;font-weight:800;font-size:17px;
+  letter-spacing:.14em;text-anchor:middle}
+#tangle line{stroke:var(--muted);stroke-width:1;opacity:.5}
+#hubwires line{stroke:var(--wire);stroke-width:1.75;opacity:.85}
+#tangle,#hubwires{transition:opacity .45s ease}
+.countline{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;align-items:baseline;
+  padding:1rem clamp(1rem,3vw,1.8rem);border-top:1px solid var(--line)}
+.countline .big{font-family:"Poppins",sans-serif;font-size:1.55rem;font-weight:700;line-height:1;color:var(--wire);font-variant-numeric:tabular-nums}
+.countline .lbl{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--muted)}
+
+/* ================= closing ================= */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.roles > div{background:var(--surface);padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.45rem}
+.tag{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wire)}
+.roles p{font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--ink)}
+.roles small{font-size:.86rem;color:var(--muted);font-family:"Poppins",sans-serif}
+
+footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-direction:column;gap:1.2rem}
+.acronym{font-size:.95rem;color:var(--muted);max-width:64ch}
+.acronym strong{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+</style>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html" aria-current="page">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <h1>A set<br>of keys</h1>
+    <p class="lede measure">A model can only produce text. Hand it a tool and it can ask for something to happen — but <strong>it never turns the key</strong>.</p>
+  </header>
+
+  <div class="panel">
+    <div class="pad" style="padding-bottom:.4rem">
+      <svg id="loop" viewBox="0 0 760 300" role="img" aria-label="The tool-calling loop between the model and your systems">
+        <!-- the permission boundary: everything right of it runs on your side -->
+        <line class="lp-bound" x1="380" y1="30" x2="380" y2="262"></line>
+        <text class="lp-boundt" x="380" y="22">YOUR KEYS</text>
+
+        <!-- the loop: out along the top, back along the bottom -->
+        <path id="lpPath" class="lp-path"
+          d="M 200 150 V 134 A 34 34 0 0 1 234 100 H 526 A 34 34 0 0 1 560 134 V 166 A 34 34 0 0 1 526 200 H 234 A 34 34 0 0 1 200 166 Z"></path>
+        <polygon class="lp-arrow" points="322,94 336,100 322,106"></polygon>
+        <polygon class="lp-arrow" points="438,194 424,200 438,206"></polygon>
+        <text class="lp-edge" x="380" y="86">REQUEST</text>
+        <text class="lp-edge" x="380" y="222">RESULT</text>
+
+        <rect id="boxModel" class="lp-box" x="18" y="110" width="172" height="80"></rect>
+        <text class="lp-t" x="104" y="146">The model</text>
+        <text class="lp-s" x="104" y="170">writes a request</text>
+
+        <rect id="boxSys" class="lp-box" x="570" y="110" width="172" height="80"></rect>
+        <text class="lp-t" x="656" y="146">Your system</text>
+        <text class="lp-s" x="656" y="170">runs it, for real</text>
+
+        <g id="packet" opacity="0">
+          <circle class="halo" r="17"></circle>
+          <circle class="core" r="8"></circle>
+        </g>
+      </svg>
+    </div>
+
+    <div class="tools" id="tools"></div>
+    <div class="toolstat">
+      <div class="stat"><span class="statn">4</span><span>servers connected</span></div>
+      <div class="stat"><span class="statn">6</span><span>tools offered</span></div>
+      <div class="stat"><span class="statn">1</span><span>used for this job</span></div>
+    </div>
+
+    <div style="padding:0 clamp(1rem,3vw,1.8rem)">
+      <p class="caption" id="caption" style="padding:0"></p>
+      <p class="payload mono" id="payload">…</p>
+    </div>
+    <div class="loopbar">
+      <button id="play">Pause</button>
+      <button id="step">Step</button>
+      <button id="reset">Restart</button>
+      <span class="callstat" id="callstat"></span>
+    </div>
+  </div>
+  <p class="note measure" style="margin-top:.9rem">Two round trips for one sentence. The model never touches your calendar: it asks, your side decides whether to run it.</p>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">What the protocol is actually for</span>
+      <h2>One plug, not twenty adapters</h2>
+    </div>
+    <div class="panel">
+      <div class="tabs" role="tablist" aria-label="Before and after MCP">
+        <button class="tab" role="tab" aria-selected="true" data-view="before">Every tool wired by hand</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="after">One shared protocol</button>
+      </div>
+      <div class="pad">
+        <svg id="nm" viewBox="0 0 760 340" role="img" aria-label="Apps connected to systems, before and after a shared protocol">
+          <g id="tangle"></g>
+          <g id="hubwires" opacity="0"></g>
+          <rect id="hub" class="nm-hub" x="338" y="60" width="84" height="220" opacity="0"></rect>
+          <text id="hubt" class="nm-hubt" x="380" y="176" opacity="0">MCP</text>
+          <g id="nmNodes"></g>
+        </svg>
+      </div>
+      <div class="countline">
+        <span class="big" id="nmCount">20</span>
+        <span class="lbl" id="nmSum">4 apps × 5 systems = 20 bespoke integrations</span>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">Same apps, same systems. Only the protocol changed — which is why a tool someone else built works in your setup.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Same mechanism, any desk</span>
+      <h2>What people actually ask for</h2>
+    </div>
+    <div class="roles">
+      <div><span class="tag">Sales</span><p>"Check the CRM and draft a follow-up"</p>
+        <small>Two tools, one sentence.</small></div>
+      <div><span class="tag">Ops</span><p>"Look up the shipment and update the tracker"</p>
+        <small>Reads one system, writes another.</small></div>
+      <div><span class="tag">Anyone</span><p>"Check my calendar and propose a time"</p>
+        <small>The example above, in the wild.</small></div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="acronym"><strong>For the record.</strong> This is MCP — the Model Context Protocol: an agreed shape for how a tool describes itself and how requests and results travel. Those descriptions sit in the context window and cost tokens, so more tools means less desk. And the model only ever emits a request: whether it runs, and under whose credentials, is decided on your side of the dashed line.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ================= the tool-calling loop ================= */
+const TOOLS = [
+  { name:"Calendar", fns:"find_free_slots · create_event" },
+  { name:"Email",    fns:"send_draft" },
+  { name:"CRM",      fns:"lookup_account" },
+  { name:"Tickets",  fns:"create_ticket · add_comment" }
+];
+const toolHost = document.getElementById("tools");
+TOOLS.forEach((t, i) => {
+  const d = document.createElement("div");
+  d.className = "chip";
+  d.dataset.tool = i;
+  d.innerHTML = "<b>" + t.name + "</b><span>" + t.fns + "</span>";
+  toolHost.appendChild(d);
+});
+
+/* frac 0 = at the model, 0.5 = at your system, 1.0 = back at the model */
+const PHASES = [
+  { frac:0,   lit:"model",  tool:null, call:null,
+    packet:"“30 min with John, Thursday”",
+    cap:["You ask", "A goal in your own words. You did not name a tool."] },
+  { frac:0,   lit:"model",  tool:0, call:null,
+    packet:"find_free_slots(Thu)",
+    cap:["The model chooses", "One name from the list it was handed, arguments filled in. Still only text."] },
+  { frac:0.5, lit:"system", tool:0, call:1,
+    packet:"find_free_slots(Thu)",
+    cap:["Across the line", "The request leaves. Your side decides whether it is allowed to run."] },
+  { frac:0.5, lit:"system", tool:0, call:1, act:true,
+    packet:"Thu 14:00 free",
+    cap:["Your system acts", "Your calendar does the work, under your credentials — not the model's."] },
+  { frac:1,   lit:"model",  tool:0, call:1,
+    packet:"Thu 14:00 free",
+    cap:["Back onto the desk", "Added to the context. Now it knows something it could not have guessed."] },
+  { frac:0.5, lit:"system", tool:0, call:2, act:true,
+    packet:"create_event(Thu 14:00, John)",
+    cap:["Round two", "It asks again, using what came back. One call rarely finishes a job."] },
+  { frac:1,   lit:"model",  tool:0, call:2,
+    packet:"event created",
+    cap:["Confirmed", "The second result travels back the same way."] },
+  { frac:1,   lit:"model",  tool:null, call:2,
+    packet:null,
+    cap:["Answer", "Only once it stops asking does it write to you: booked, Thursday 14:00, with John."] }
+];
+
+const path     = document.getElementById("lpPath");
+const packet   = document.getElementById("packet");
+const payload  = document.getElementById("payload");
+const boxModel = document.getElementById("boxModel");
+const boxSys   = document.getElementById("boxSys");
+const caption  = document.getElementById("caption");
+const callstat = document.getElementById("callstat");
+const playBtn  = document.getElementById("play");
+
+const LEN = path.getTotalLength();
+let phase = -1, cur = 0, raf = null, timer = null;
+
+function moveTo(target, animate){
+  if (target < cur) cur -= 1;                 // the path is a closed loop: 1.0 and 0.0 are the same point
+  const from = cur, delta = target - from;
+  const t0 = performance.now();
+  const dur = animate && !reduced ? 900 : 0;
+  if (raf) cancelAnimationFrame(raf);
+  const tick = () => {
+    const k = dur ? Math.min(1, (performance.now() - t0) / dur) : 1;
+    const e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;   // ease in-out cubic
+    cur = from + delta * e;
+    const p = path.getPointAtLength(((cur % 1) + 1) % 1 * LEN);
+    packet.setAttribute("transform", "translate(" + p.x + "," + p.y + ")");
+    if (k < 1) raf = requestAnimationFrame(tick); else { cur = target; raf = null; }
+  };
+  tick();
+}
+
+function paint(animate){
+  const ph = PHASES[phase];
+
+  // the dot travels the loop; the payload it carries is spelled out below the diagram,
+  // where there is room to read it on a projector
+  packet.setAttribute("opacity", ph.packet ? "1" : "0");
+  payload.textContent = ph.packet || " ";
+  payload.classList.toggle("off", !ph.packet);
+
+  boxModel.setAttribute("class", "lp-box" + (ph.lit === "model" ? " on" : ""));
+  boxSys.setAttribute("class", "lp-box" + (ph.lit === "system" ? (ph.act ? " act" : " on") : ""));
+  document.querySelectorAll("[data-tool]").forEach(el =>
+    el.classList.toggle("on", Number(el.dataset.tool) === ph.tool));
+
+  caption.innerHTML = "<b>" + ph.cap[0] + "</b>" + ph.cap[1];
+  callstat.textContent = ph.call ? "tool call " + ph.call + " of 2" : "no tool call yet";
+  moveTo(ph.frac, animate);
+}
+
+function stepFwd(){
+  phase = phase >= PHASES.length - 1 ? 0 : phase + 1;
+  if (phase === 0) cur = 0;
+  paint(phase !== 0);
+}
+function stop(){ if (timer){ clearInterval(timer); timer = null; } playBtn.textContent = "Play"; }
+function run(){ stop(); playBtn.textContent = "Pause"; timer = setInterval(stepFwd, 2000); }
+playBtn.addEventListener("click", () => { timer ? stop() : run(); });
+document.getElementById("step").addEventListener("click", () => { stop(); stepFwd(); });
+document.getElementById("reset").addEventListener("click", () => { stop(); phase = -1; cur = 0; stepFwd(); });
+
+stepFwd();
+if (!reduced) run(); else stop();
+
+/* ================= before / after the protocol ================= */
+const APPS    = ["Claude Code", "A chat app", "Your IDE", "A custom agent"];
+const SYSTEMS = ["Calendar", "Email", "CRM", "Tickets", "Database"];
+const NW = 760, LEFT_X = 24, RIGHT_X = 596, NODE_W = 150, NODE_H = 38;
+
+const nodesG = document.getElementById("nmNodes");
+const tangle = document.getElementById("tangle");
+const hubw   = document.getElementById("hubwires");
+const SVGNS  = "http://www.w3.org/2000/svg";
+
+function spread(n, top, bottom){
+  const gap = (bottom - top - NODE_H) / Math.max(1, n - 1);
+  return Array.from({length:n}, (_, i) => top + i * gap);
+}
+const appY = spread(APPS.length, 46, 296);
+const sysY = spread(SYSTEMS.length, 30, 310);
+
+function node(x, y, label){
+  const r = document.createElementNS(SVGNS, "rect");
+  r.setAttribute("class", "nm-node");
+  r.setAttribute("x", x); r.setAttribute("y", y);
+  r.setAttribute("width", NODE_W); r.setAttribute("height", NODE_H);
+  const t = document.createElementNS(SVGNS, "text");
+  t.setAttribute("class", "nm-t");
+  t.setAttribute("x", x + 12); t.setAttribute("y", y + NODE_H / 2 + 5);
+  t.textContent = label;
+  nodesG.append(r, t);
+}
+APPS.forEach((a, i) => node(LEFT_X, appY[i], a));
+SYSTEMS.forEach((s, i) => node(RIGHT_X, sysY[i], s));
+
+function wire(host, x1, y1, x2, y2){
+  const l = document.createElementNS(SVGNS, "line");
+  l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+  l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+  host.appendChild(l);
+}
+// before: every app wired to every system, by hand
+APPS.forEach((_, i) => SYSTEMS.forEach((__, j) =>
+  wire(tangle, LEFT_X + NODE_W, appY[i] + NODE_H / 2, RIGHT_X, sysY[j] + NODE_H / 2)));
+// after: every app to the protocol, the protocol to every system
+APPS.forEach((_, i) => wire(hubw, LEFT_X + NODE_W, appY[i] + NODE_H / 2, 338, 170));
+SYSTEMS.forEach((_, j) => wire(hubw, 422, 170, RIGHT_X, sysY[j] + NODE_H / 2));
+
+const hub = document.getElementById("hub"), hubt = document.getElementById("hubt");
+const nmCount = document.getElementById("nmCount"), nmSum = document.getElementById("nmSum");
+const N = APPS.length, M = SYSTEMS.length;
+function showView(v){
+  const after = v === "after";
+  tangle.setAttribute("opacity", after ? "0" : "1");
+  hubw.setAttribute("opacity", after ? "1" : "0");
+  hub.setAttribute("opacity", after ? "1" : "0");
+  hubt.setAttribute("opacity", after ? "1" : "0");
+  nmCount.textContent = after ? N + M : N * M;
+  nmSum.textContent = after
+    ? N + " apps + " + M + " systems = " + (N + M) + " connections, all the same shape"
+    : N + " apps × " + M + " systems = " + (N * M) + " bespoke integrations";
+}
+document.querySelectorAll("[data-view]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    showView(btn.dataset.view);
+  });
+});
+showView("before");
+</script>

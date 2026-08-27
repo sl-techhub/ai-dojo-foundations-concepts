@@ -1,0 +1,695 @@
+<title>The Desk Fills Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --pin:#48585E;
+  --pin-fg:#FFFFFF;
+  --turn-a:#2F5F8C;
+  --turn-b:#3C749F;
+  --turn-fg:#FFFFFF;
+  --paste:#1F4A6B;
+  --warn:#B0721A;
+  --over:#DF3C4B;
+  --compact:#12726A;
+  --compact-fg:#FFFFFF;
+  --reserve:#D8D8D0;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;
+  font-size:1.0625rem;line-height:1.62;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:63ch}
+
+h1,h2,h3,.eyebrow,button,th,.stat-n,.tab,.readout,.band-l,.ghost-l{
+  font-family:"Poppins",system-ui,sans-serif;
+}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-weight:800;
+   font-size:clamp(2.5rem,1.3rem + 6.2vw,5.2rem);line-height:.94;letter-spacing:-.025em}
+h2{font-weight:700;
+   font-size:clamp(1.6rem,1.2rem + 1.8vw,2.5rem);line-height:1.06;letter-spacing:-.018em}
+h3{font-weight:600;
+   font-size:1.0625rem;line-height:1.3;letter-spacing:-.008em}
+p{margin:0}
+.eyebrow{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+         color:var(--muted);}
+.lede{font-size:clamp(1.1rem,1.02rem + .4vw,1.3rem);color:var(--ink-2);line-height:1.55}
+.note{font-size:.95rem;color:var(--muted)}
+strong{font-weight:500;color:var(--ink)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+
+header.hero{position:relative}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+header.hero{padding:clamp(2rem,5vh,3.6rem) 0 2.2rem}
+.hero-top{display:flex;flex-direction:column;gap:1.1rem}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+section.station{padding:clamp(3rem,7vh,5.5rem) 0;border-top:1px solid var(--line)}
+.station-head{display:flex;gap:clamp(1rem,3vw,2.4rem);align-items:baseline;margin-bottom:1.6rem}
+.num{font-family:"IBM Plex Mono",monospace;font-size:var(--step);font-weight:600;
+     color:var(--accent);letter-spacing:.08em;padding-top:.5em;flex:none}
+.station-head > div{display:flex;flex-direction:column;gap:.7rem}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.panel-pad{padding:clamp(1.1rem,3vw,1.9rem)}
+.scroller{overflow-x:auto}
+
+.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);padding:0 clamp(.5rem,2vw,1rem)}
+.tab{appearance:none;background:transparent;border:0;border-bottom:2px solid transparent;
+     color:var(--muted);font-size:.9rem;font-weight:600;
+     padding:.85em .8em;cursor:pointer;border-radius:0}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+button{font-size:.9rem;font-weight:600;
+       padding:.5em .95em;border-radius:4px;cursor:pointer;
+       background:var(--ink);color:var(--bg);border:1px solid var(--ink);transition:opacity .15s ease}
+button:hover{opacity:.82}
+button.ghost{background:transparent;color:var(--ink-2);border-color:var(--line-strong)}
+button.ghost:hover{color:var(--ink);border-color:var(--ink)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- the desk ---------- */
+.deskgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1rem,3vw,2rem);
+          padding:clamp(1.1rem,3vw,1.9rem)}
+@media (max-width:720px){.deskgrid{grid-template-columns:minmax(0,1fr)}}
+
+.desk{position:relative;height:clamp(340px,52vh,460px);
+      background:var(--surface-2);border:1px solid var(--line-strong);border-radius:4px;overflow:hidden}
+.desk.overflowing{border-color:var(--over);box-shadow:0 0 0 3px color-mix(in srgb,var(--over) 18%,transparent)}
+.reserveband{position:absolute;left:0;right:0;top:0;
+  background:repeating-linear-gradient(-45deg,var(--reserve) 0 5px,transparent 5px 10px);
+  border-bottom:1px dashed var(--line-strong);
+  display:flex;align-items:center;justify-content:flex-end;padding:0 .55rem}
+.reserveband span{font-family:"Poppins",sans-serif;font-size:.68rem;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.ceiling{position:absolute;left:0;right:0;height:0;border-top:2px dashed var(--over);z-index:3;pointer-events:none}
+.ceiling b{position:absolute;right:.4rem;top:-1.35rem;font-family:"Poppins",sans-serif;
+  font-size:.66rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--over)}
+/* the stack must span the whole desk: a band's height is a percentage of the desk,
+   and a percentage against an auto height resolves against the content instead */
+.stack{position:absolute;left:0;right:0;top:0;bottom:0;
+  display:flex;flex-direction:column-reverse;justify-content:flex-start;z-index:2}
+.band{
+  position:relative;overflow:hidden;min-height:0;flex:0 0 auto;
+  border-top:1px solid rgba(255,255,255,.22);
+  display:flex;align-items:center;padding:0 .6rem;
+  transition:height .5s cubic-bezier(.4,0,.2,1),opacity .35s ease;
+  background:var(--turn-a);color:var(--turn-fg);
+}
+.band.k-pin{background:var(--pin);color:var(--pin-fg)}
+.band.k-paste{background:var(--paste);color:var(--turn-fg)}
+.band.k-turn-b{background:var(--turn-b)}
+.band.k-sum{background:var(--compact);color:var(--compact-fg)}
+.band.leaving{opacity:0}
+.band.flash{animation:flash .7s ease}
+@keyframes flash{0%,100%{filter:none}40%{filter:brightness(1.45)}}
+.band-l{font-size:.74rem;font-weight:600;letter-spacing:.01em;white-space:nowrap;
+        overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.band-n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;font-variant-numeric:tabular-nums;
+        opacity:.85;padding-left:.5rem;flex:none}
+.band.small .band-l,.band.small .band-n{display:none}
+
+.side{display:flex;flex-direction:column;gap:1rem;min-width:0}
+.readout{display:flex;flex-direction:column;gap:.15rem}
+.readout .big{font-size:clamp(1.7rem,1.2rem + 1.8vw,2.4rem);font-weight:700;
+  line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.readout .big.warn{color:var(--warn)}
+.readout .big.over{color:var(--over)}
+.readout .sub{font-size:var(--step);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  font-family:"Poppins",sans-serif;font-weight:600}
+.meter{height:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--turn-a);transition:width .5s ease,background-color .3s ease}
+.meter i.warn{background:var(--warn)}
+.meter i.over{background:var(--over)}
+
+.tray{border:1px dashed var(--line-strong);border-radius:4px;padding:.85rem;
+      display:flex;flex-direction:column;gap:.55rem;min-height:7.5rem}
+.tray-h{font-family:"Poppins",sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.11em;
+        text-transform:uppercase;color:var(--muted)}
+.ghosts{display:flex;flex-direction:column;gap:.3rem}
+.ghost-l{font-size:.8rem;color:var(--muted);display:flex;gap:.5rem;align-items:baseline;
+         animation:slidein .4s ease}
+.ghost-l s{text-decoration-color:var(--over);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ghost-l em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.72rem;flex:none}
+@keyframes slidein{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.tray.empty .ghosts::after{content:"Nothing yet.";font-family:"Poppins",sans-serif;font-size:.9rem;color:var(--muted)}
+
+.legend{display:flex;flex-wrap:wrap;gap:.15rem 1rem;font-size:.8rem;color:var(--muted)}
+.legend b{display:inline-flex;align-items:center;gap:.35rem;font-weight:400}
+.legend i{width:.7rem;height:.7rem;border-radius:2px;flex:none}
+
+.controls{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+          padding:.85rem clamp(1rem,3vw,1.9rem);border-top:1px solid var(--line)}
+.step-note{margin-left:auto;font-size:.88rem;color:var(--muted);text-align:right;max-width:34ch}
+
+/* ---------- what's on the desk ---------- */
+.slices{display:flex;height:2.6rem;border-radius:4px;overflow:hidden;border:1px solid var(--line-strong)}
+.slice{display:flex;align-items:center;justify-content:center;font-family:"Poppins",sans-serif;
+       font-size:.68rem;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap}
+.slicekey{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.5rem 1.2rem;margin-top:1rem}
+.slicekey div{display:flex;gap:.55rem;align-items:baseline;font-size:.92rem;color:var(--ink-2)}
+.slicekey i{width:.75rem;height:.75rem;border-radius:2px;flex:none;margin-top:.35em}
+.slicekey b{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--muted);
+            font-weight:400;margin-left:auto;font-variant-numeric:tabular-nums}
+
+table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:540px}
+th,td{text-align:left;padding:.72rem .9rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:var(--step);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+   }
+td:first-child{font-family:"Poppins",sans-serif;font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* four cards: 380px forces two columns, so the last one is never an orphan
+   leaving the container's 1px-gap background showing as a grey slab */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:1px;
+       background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.card{background:var(--surface);padding:1.25rem 1.3rem;display:flex;flex-direction:column;gap:.6rem}
+.card p{font-size:.98rem;color:var(--ink-2);line-height:1.5}
+.tag{font-family:"Poppins",sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.1em;
+     text-transform:uppercase;padding:.25em .5em;border-radius:3px;align-self:flex-start}
+.tag.keep{background:color-mix(in srgb,var(--compact) 16%,transparent);color:var(--compact)}
+.tag.lose{background:color-mix(in srgb,var(--over) 15%,transparent);color:var(--over)}
+
+footer{border-top:1px solid var(--line);padding:3rem 0 4rem}
+.closing{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.8rem;margin-bottom:2.6rem}
+.closing h3{margin-bottom:.5rem}
+.closing p{font-size:.98rem;color:var(--ink-2)}
+.disclosure{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
+  padding:1.15rem 1.3rem;font-size:.94rem;color:var(--muted);max-width:70ch}
+.disclosure strong{color:var(--ink-2);font-weight:500}
+a{color:var(--ink);text-decoration-color:var(--line-strong);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--compact)}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html" aria-current="page">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <div class="hero-top">
+      <h1>The desk<br>fills up</h1>
+      <p class="lede measure">Everything the AI can see at once. It does not start empty, it does not grow, and when it runs out something has to go.</p>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="tabs" role="tablist" aria-label="What happens when the desk is full">
+      <button class="tab" role="tab" aria-selected="true" data-mode="drop">Let it overflow</button>
+      <button class="tab" role="tab" aria-selected="false" data-mode="compact">Compact it</button>
+    </div>
+    <div class="deskgrid">
+      <div>
+        <div class="desk" id="desk">
+          <div class="reserveband" id="reserveband"><span>Reserved for the reply</span></div>
+          <div class="ceiling" id="ceiling"><b>Full</b></div>
+          <div class="stack" id="stack"></div>
+        </div>
+        <div class="legend" style="margin-top:.7rem">
+          <b><i style="background:var(--pin)"></i>Always there</b>
+          <b><i style="background:var(--paste)"></i>Pasted in</b>
+          <b><i style="background:var(--turn-a)"></i>Conversation</b>
+          <b><i style="background:var(--compact)"></i>Summary</b>
+        </div>
+      </div>
+      <div class="side">
+        <div class="readout">
+          <span class="big" id="used">1,900</span>
+          <span class="sub">of 8,000 tokens on the desk</span>
+        </div>
+        <div class="meter"><i id="meterFill"></i></div>
+        <div class="readout">
+          <span class="big" id="turnsN" style="font-size:1.4rem">0</span>
+          <span class="sub">turns so far</span>
+        </div>
+        <div class="tray empty" id="tray">
+          <span class="tray-h" id="trayH">Slid off the desk</span>
+          <div class="ghosts" id="ghosts"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="run">Run the conversation</button>
+      <button class="ghost" id="stepBtn">Next turn</button>
+      <button class="ghost" id="resetBtn">Reset</button>
+      <span class="step-note" id="stepNote">A deliberately tiny 8,000-token desk, so it fills while you watch.</span>
+    </div>
+  </div>
+  <p class="note measure" style="margin-top:1rem">What gets sacrificed is the Q3 report you pasted first. Oldest goes, not least important.</p>
+
+  <!-- 01 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">01</span>
+      <div>
+        <span class="eyebrow">You never start with an empty desk</span>
+        <h2>What is already on it</h2>
+        <p class="lede measure">A 200,000-token window is not 200,000 tokens for your question.</p>
+      </div>
+    </div>
+    <div class="panel panel-pad">
+      <div class="slices" id="slices"></div>
+      <div class="slicekey" id="slicekey"></div>
+      <p class="note" style="margin-top:1.2rem">The three fixed items cannot be dropped. They are what makes it behave like yours.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">02</span>
+      <div>
+        <span class="eyebrow">Overflow</span>
+        <h2>Three things that can happen, and you may not be told which</h2>
+        <p class="lede measure">Not one behaviour — and only one of the three is loud about it.</p>
+      </div>
+    </div>
+    <div class="panel scroller">
+      <table>
+        <thead><tr><th>What the tool does</th><th>What you see</th><th>Where you meet it</th></tr></thead>
+        <tbody>
+          <tr><td>Refuses</td><td>Too long. Annoying, but honest.</td>
+              <td>Calling a model directly through an API</td></tr>
+          <tr><td>Drops the oldest</td><td>Nothing. It stops knowing what you said early on.</td>
+              <td>Many chat interfaces</td></tr>
+          <tr><td>Compacts</td><td>A note that it summarised, then it carries on.</td>
+              <td>Coding agents, Claude Code among them</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note measure" style="margin-top:1rem">The silent middle row costs you most: same confidence, less to go on.</p>
+  </section>
+
+  <!-- 03 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">03</span>
+      <div>
+        <span class="eyebrow">Compaction</span>
+        <h2>Trading detail for room</h2>
+        <p class="lede measure">Old turns become a short summary, recent ones stay. In the demo, 2,780 tokens become 331. Nothing is deleted, but the resolution drops.</p>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <span class="tag keep">Usually survives</span>
+        <h3>The shape of the work</h3>
+        <p>The goal, the decisions, where you got to.</p>
+      </div>
+      <div class="card">
+        <span class="tag lose">Usually lost</span>
+        <h3>The exact wording</h3>
+        <p>Figures, quotes, exact phrasing. Ask for a number afterwards and you may get a plausible one.</p>
+      </div>
+      <div class="card">
+        <span class="tag keep">Comes back on demand</span>
+        <h3>Anything still on disk</h3>
+        <p>A file can be read again. Documents beat pasting into chat.</p>
+      </div>
+      <div class="card">
+        <span class="tag lose">Silently stale</span>
+        <h3>Your early corrections</h3>
+        <p>Said in turn three, gone by turn ninety. Rules that always matter belong in the rules file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="station">
+    <div class="station-head">
+      <span class="num">04</span>
+      <div>
+        <span class="eyebrow">The part nobody expects</span>
+        <h2>A fuller desk is not a better desk</h2>
+        <p class="lede measure">The instinct is to give it everything. But material in the middle of a long context gets less reliable attention than material at either end.</p>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card"><h3>Paste the section, not the document</h3>
+        <p>Ten relevant pages beat four hundred irrelevant ones.</p></div>
+      <div class="card"><h3>Start a new session at real boundaries</h3>
+        <p>New task, clean desk.</p></div>
+      <div class="card"><h3>Put durable things in durable places</h3>
+        <p>Instructions in the rules file, reference in documents. The conversation is for the conversation.</p></div>
+      <div class="card"><h3>After a compaction, restate what matters</h3>
+        <p>One line — "the figure is 4.2M, we are on the Q3 draft" — is cheap insurance.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="closing">
+      <div><h3>Session</h3>
+        <p>Close it and the desk is cleared, however much you explained.</p></div>
+      <div><h3>Context window</h3>
+        <p>The size of the desk, in tokens. Fixed, and shared with everything above.</p></div>
+      <div><h3>Compaction</h3>
+        <p>Squeezing old turns into a summary. Buys room, costs detail.</p></div>
+    </div>
+    <div class="disclosure">
+      <strong>About these numbers.</strong> The desk is 8,000 tokens so it overflows in a few clicks; real ones are far larger and behave the same. Item sizes are invented but realistic, and the eight-to-one compaction ratio is typical, not guaranteed.
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fmt = n => n.toLocaleString("en-US");
+
+const LIMIT = 8000;
+const RESERVE = 1000;                 // must stay free for the reply
+const BASE = [
+  { id:"sys",   label:"System prompt",         tokens:600, kind:"pin" },
+  { id:"rules", label:"Rules file (AGENTS.md)", tokens:400, kind:"pin" },
+  { id:"tools", label:"Tool definitions",      tokens:900, kind:"pin" }
+];
+const BASE_SUM = BASE.reduce((s,b) => s + b.tokens, 0);   // 1,900
+const USABLE = LIMIT - RESERVE - BASE_SUM;                // 5,100
+
+const SCRIPT = [
+  { label:"You paste the Q3 report",            tokens:2200, kind:"paste" },
+  { label:"“Summarise the risks”",              tokens:60 },
+  { label:"The reply",                          tokens:520 },
+  { label:"“Which risk is most urgent?”",       tokens:40 },
+  { label:"The reply",                          tokens:610 },
+  { label:"You paste the board minutes",        tokens:1800, kind:"paste" },
+  { label:"“Does this change the answer?”",     tokens:50 },
+  { label:"The reply",                          tokens:680 },
+  { label:"“Draft an email to the CFO”",        tokens:60 },
+  { label:"The reply",                          tokens:740 }
+];
+
+const stack   = document.getElementById("stack");
+const desk    = document.getElementById("desk");
+const ghosts  = document.getElementById("ghosts");
+const tray    = document.getElementById("tray");
+const trayH   = document.getElementById("trayH");
+const usedEl  = document.getElementById("used");
+const meter   = document.getElementById("meterFill");
+const turnsEl = document.getElementById("turnsN");
+const noteEl  = document.getElementById("stepNote");
+const runBtn  = document.getElementById("run");
+const stepBtn = document.getElementById("stepBtn");
+
+let mode = "drop";
+let overflowed = false;   // a turn is sitting over the line, waiting to be resolved
+let convo = [];        // conversation items currently on the desk
+let cursor = 0;        // how far through SCRIPT we are
+let uid = 0;
+let timer = null;
+let turnCount = 0;
+let compactions = 0;
+
+// hatched reserve band and the "full" line sit at true proportional heights
+document.getElementById("reserveband").style.height = (RESERVE / LIMIT * 100) + "%";
+document.getElementById("ceiling").style.top = (RESERVE / LIMIT * 100) + "%";
+
+const convoSum = () => convo.reduce((s,i) => s + i.tokens, 0);
+const usedSum  = () => BASE_SUM + convoSum();
+
+/* keyed render: bands keep their DOM element across updates so height animates */
+function render(){
+  const items = BASE.concat(convo);
+  const seen = new Set();
+  items.forEach((item, idx) => {
+    seen.add(item.id);
+    let el = stack.querySelector('[data-id="' + item.id + '"]');
+    if (!el){
+      el = document.createElement("div");
+      el.dataset.id = item.id;
+      el.innerHTML = '<span class="band-l"></span><span class="band-n"></span>';
+      el.style.height = "0%";
+      stack.appendChild(el);
+      requestAnimationFrame(() => { el.style.height = (item.tokens / LIMIT * 100) + "%"; });
+    } else {
+      el.style.height = (item.tokens / LIMIT * 100) + "%";
+    }
+    const alt = item.kind === undefined && idx % 2 === 0 ? " k-turn-b" : "";
+    el.className = "band" + (item.kind ? " k-" + item.kind : "") + alt +
+                   (item.tokens < 260 ? " small" : "");
+    el.style.order = idx;
+    el.querySelector(".band-l").textContent = item.label;
+    el.querySelector(".band-n").textContent = fmt(item.tokens);
+    el.title = item.label + " — " + fmt(item.tokens) + " tokens";
+  });
+  stack.querySelectorAll(".band").forEach(el => {
+    if (!seen.has(el.dataset.id) && !el.classList.contains("leaving")){
+      el.classList.add("leaving");
+      el.style.height = "0%";
+      setTimeout(() => el.remove(), reduced ? 20 : 520);
+    }
+  });
+
+  const used = usedSum();
+  const pct  = used / LIMIT * 100;
+  usedEl.textContent = fmt(used);
+  turnsEl.textContent = turnCount;
+  meter.style.width = Math.min(100, pct) + "%";
+  const near = convoSum() > USABLE * 0.8;
+  const over = convoSum() > USABLE;
+  meter.className = over ? "over" : (near ? "warn" : "");
+  usedEl.className = "big" + (over ? " over" : (near ? " warn" : ""));
+  desk.classList.toggle("overflowing", over);
+}
+
+function ghost(text, tokens, struck){
+  tray.classList.remove("empty");
+  const row = document.createElement("div");
+  row.className = "ghost-l";
+  const label = document.createElement(struck ? "s" : "span");
+  label.textContent = text;
+  if (!struck) label.style.flex = "1";
+  const n = document.createElement("em");
+  n.textContent = tokens;
+  row.append(label, n);
+  ghosts.appendChild(row);
+}
+
+/* make room for `need` tokens, in whichever way the current mode says */
+function makeRoom(){
+  if (convoSum() <= USABLE) return null;
+
+  if (mode === "drop"){
+    const dropped = [];
+    while (convo.length && convoSum() > USABLE){
+      const gone = convo.shift();           // oldest first
+      dropped.push(gone);
+      ghost(gone.label, "−" + fmt(gone.tokens), true);
+    }
+    if (!dropped.length) return null;
+    const which = dropped.length === 1
+      ? 'the oldest item — "' + dropped[0].label + '"'
+      : "the " + dropped.length + " oldest items";
+    return "Dropped " + which + ". Back under the line — and the report is no longer on the desk.";
+  }
+
+  // compaction: fold the older part of the conversation into one summary band
+  const keepRecent = 2;
+  const foldable = convo.filter(i => i.kind !== "sum").slice(0, Math.max(0, convo.length - keepRecent));
+  if (!foldable.length) return null;
+  const before = foldable.reduce((s,i) => s + i.tokens, 0);
+  const after  = Math.max(120, Math.round(before / 8.4));
+  const ids = new Set(foldable.map(i => i.id));
+  const existing = convo.find(i => i.kind === "sum");
+  convo = convo.filter(i => !ids.has(i.id));
+  if (existing){
+    existing.tokens += after;
+    existing.label = "Summary of earlier conversation";
+  } else {
+    convo.unshift({ id:"sum" + (++uid), label:"Summary of earlier conversation", tokens:after, kind:"sum" });
+  }
+  compactions++;
+  ghost(fmt(before) + " tokens of conversation → " + fmt(after), "8:1", false);
+  return "Compacted. " + fmt(before) + " tokens of earlier conversation became " + fmt(after) +
+         ", freeing " + fmt(before - after) + " — the gist kept, the wording gone.";
+}
+
+function finalNote(prefix){
+  return (prefix ? prefix + " " : "") + "End of the conversation. " +
+    (mode === "drop"
+      ? "The report is gone; ask about it now and you get an answer built on what is left."
+      : "Everything is still represented — " + compactions + " compaction" + (compactions === 1 ? "" : "s") +
+        " in, at lower resolution.");
+}
+
+/* A step either lands the next turn or, if that turn pushed the desk over the line,
+   clears the overflow. Two beats, so the overflow is actually visible instead of being
+   resolved before it can be drawn. */
+function step(){
+  if (overflowed){
+    overflowed = false;
+    const msg = makeRoom();
+    render();
+    noteEl.textContent = cursor >= SCRIPT.length ? finalNote(msg) : (msg || "");
+    stepBtn.disabled = cursor >= SCRIPT.length;
+    return cursor < SCRIPT.length;
+  }
+  if (cursor >= SCRIPT.length) return false;
+  const src = SCRIPT[cursor++];
+  const item = { id:"i" + (++uid), label:src.label, tokens:src.tokens, kind:src.kind };
+  convo.push(item);
+  turnCount++;
+  render();
+  const el = stack.querySelector('[data-id="' + item.id + '"]');
+  if (el && !reduced){ el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 700); }
+
+  if (convoSum() > USABLE){
+    overflowed = true;
+    noteEl.textContent = "Over the line — " + fmt(usedSum()) + " of 8,000, and the reply still needs room. " +
+      (mode === "drop" ? "Something has to go." : "Time to compact.");
+    stepBtn.disabled = false;
+    return true;
+  }
+  noteEl.textContent = src.label + " — " + fmt(src.tokens) + " tokens.";
+  stepBtn.disabled = cursor >= SCRIPT.length;
+  if (cursor >= SCRIPT.length) noteEl.textContent = finalNote("");
+  return cursor < SCRIPT.length;
+}
+
+function stop(){
+  if (timer){ clearTimeout(timer); timer = null; }
+  runBtn.textContent = cursor >= SCRIPT.length ? "Run again" : "Run the conversation";
+}
+function run(){
+  if (cursor >= SCRIPT.length) reset();
+  runBtn.textContent = "Pause";
+  const tick = () => {
+    const more = step();
+    if (more) timer = setTimeout(tick, reduced ? 30 : 1150);
+    else { timer = null; runBtn.textContent = "Run again"; }
+  };
+  tick();
+}
+function reset(){
+  stop();
+  convo = []; cursor = 0; turnCount = 0; compactions = 0; overflowed = false;
+  ghosts.innerHTML = "";
+  tray.classList.add("empty");
+  stepBtn.disabled = false;
+  noteEl.textContent = "A deliberately tiny 8,000-token desk, so it fills while you watch.";
+  runBtn.textContent = "Run the conversation";
+  render();
+}
+
+runBtn.addEventListener("click", () => { timer ? stop() : run(); });
+stepBtn.addEventListener("click", () => { stop(); step(); });
+document.getElementById("resetBtn").addEventListener("click", reset);
+document.querySelectorAll("[data-mode]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    mode = btn.dataset.mode;
+    trayH.textContent = mode === "drop" ? "Slid off the desk" : "Compacted away";
+    reset();
+  });
+});
+reset();
+
+/* ---------- station 01: what is already on the desk ---------- */
+const SLICES = [
+  { label:"System prompt",  tokens:600,     color:"var(--pin)",
+    note:"How the tool itself behaves. Always present, never yours to edit." },
+  { label:"Rules file",     tokens:400,     color:"color-mix(in srgb,var(--pin) 78%,white)",
+    note:"Your standing instructions — AGENTS.md and its kin." },
+  { label:"Tools",          tokens:900,     color:"color-mix(in srgb,var(--pin) 58%,white)",
+    note:"A description of every tool it may call. More tools, less desk." },
+  { label:"Room for the conversation", tokens:USABLE, color:"var(--turn-a)",
+    note:"Everything you say, everything it says, everything you paste." },
+  { label:"Reserved for the reply", tokens:RESERVE, color:"var(--reserve)",
+    note:"An answer needs somewhere to go. Fill this and nothing can be written." }
+];
+const slicesEl = document.getElementById("slices");
+const keyEl = document.getElementById("slicekey");
+SLICES.forEach(s => {
+  const d = document.createElement("div");
+  d.className = "slice";
+  d.style.cssText = "flex:" + s.tokens + " 0 0;background:" + s.color;
+  d.style.color = s.label.startsWith("Reserved") ? "var(--muted)" : "#fff";
+  d.textContent = s.tokens / LIMIT > 0.09 ? Math.round(s.tokens / LIMIT * 100) + "%" : "";
+  d.title = s.label + " — " + fmt(s.tokens) + " tokens";
+  slicesEl.appendChild(d);
+
+  const k = document.createElement("div");
+  k.innerHTML = '<i style="background:' + s.color + '"></i><span><strong>' + s.label +
+                "</strong> — " + s.note + "</span><b>" + fmt(s.tokens) + "</b>";
+  keyEl.appendChild(k);
+});
+</script>
