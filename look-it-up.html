@@ -1,0 +1,519 @@
+<title>Look It Up, Then Answer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.13);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --hit:#9A6B08;
+  --hit-soft:rgba(154,107,8,.13);
+  --query:#1B3F70;
+  --idle:#9FAEB4;
+  --c1:#5B8FB4;
+  --c2:#5E9E7E;
+  --c3:#B08A4A;
+  --c4:#8A7BB0;
+  --c5:#B0737E;
+  --c6:#8A9A56;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;font-size:1.0625rem;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:56ch}
+
+h1,h2,.eyebrow,button,.node,.bandlabel,.chip,.cite,.statn{
+  font-family:"Poppins",system-ui,sans-serif}
+h1,h2{text-wrap:balance;margin:0}
+h1{font-weight:800;
+   font-size:clamp(2.3rem,1.2rem + 5.6vw,4.6rem);line-height:.95;letter-spacing:-.025em}
+h2{font-weight:700;
+   font-size:clamp(1.45rem,1.15rem + 1.4vw,2.1rem);line-height:1.08;letter-spacing:-.018em}
+p{margin:0}
+.eyebrow{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);}
+.lede{font-size:clamp(1.05rem,1rem + .35vw,1.2rem);color:var(--ink-2)}
+.note{font-size:.92rem;color:var(--muted)}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+header.hero{position:relative}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+header.hero{padding:clamp(2rem,5vh,3.6rem) 0 1.8rem;display:flex;flex-direction:column;gap:1rem}
+section{padding:clamp(2.4rem,6vh,4.2rem) 0;border-top:1px solid var(--line)}
+.head{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+
+button{font-size:.86rem;font-weight:600;
+  padding:.45em .9em;border-radius:4px;cursor:pointer;
+  background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+button:hover{color:var(--ink);border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ================= the pipeline ================= */
+.flow{padding:clamp(1.1rem,3vw,2rem)}
+.band{display:flex;flex-direction:column;gap:.6rem}
+.bandlabel{font-size:.66rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;align-items:stretch;gap:0;flex-wrap:nowrap}
+.node{
+  flex:1 1 0;min-width:0;
+  border:1px solid var(--line-strong);border-radius:5px;
+  background:var(--surface-2);color:var(--muted);
+  padding:.7rem .55rem;text-align:center;
+  font-size:clamp(.66rem,.58rem + .3vw,.8rem);font-weight:600;line-height:1.25;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .3s ease,border-color .3s ease,background-color .3s ease,box-shadow .3s ease;
+}
+.node.on{color:var(--ink);border-color:var(--accent);background:var(--accent-soft);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.conn{flex:0 0 clamp(14px,3vw,40px);align-self:center;height:2px;background:var(--line);
+  position:relative;overflow:hidden}
+.conn i{position:absolute;inset:0;width:0;background:var(--accent);transition:width .34s ease}
+.conn.on i{width:100%}
+
+.vconn{display:flex;align-items:center;gap:.5rem;padding:.15rem 0;margin-left:12%}
+.vconn .bar{width:2px;height:26px;background:var(--line);position:relative;overflow:hidden}
+.vconn .bar i{position:absolute;left:0;top:0;width:100%;height:0;background:var(--accent);transition:height .3s ease}
+.vconn.on .bar i{height:100%}
+.vconn span{font-size:.68rem;color:var(--muted);font-family:"Poppins",sans-serif;font-weight:600}
+
+/* the cabinet, drawn as what it holds: a lot of filed passages */
+.index{
+  border:1px dashed var(--line-strong);border-radius:6px;background:var(--surface-2);
+  padding:.75rem .9rem;display:flex;align-items:center;gap:1rem;
+  transition:border-color .3s ease,background-color .3s ease}
+.index.on{border-color:var(--accent);background:var(--accent-soft);border-style:solid}
+.index .t{font-family:"Poppins",sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);flex:none}
+.index.on .t{color:var(--ink)}
+.dotfield{flex:1;height:34px;display:grid;grid-template-columns:repeat(auto-fit,minmax(9px,1fr));
+  align-content:center;gap:3px 4px;overflow:hidden}
+.dotfield b{width:4px;height:4px;border-radius:50%;background:var(--idle);
+  transition:background-color .4s ease,transform .4s ease}
+.index.on .dotfield b.lit{background:var(--hit);transform:scale(1.7)}
+
+.caption{margin-top:1rem;font-size:.95rem;color:var(--ink-2);min-height:2.9em}
+.caption b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--accent);
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.15rem}
+.flowbar{display:flex;gap:.5rem;padding:.75rem clamp(1.1rem,3vw,2rem);border-top:1px solid var(--line)}
+
+/* ================= the filing cabinet ================= */
+.cab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1rem,3vw,1.8rem);
+  padding:clamp(1.1rem,3vw,1.8rem)}
+@media (max-width:760px){.cab{grid-template-columns:minmax(0,1fr)}}
+.folders{display:flex;flex-direction:column;gap:.45rem}
+.folder{border:1px solid var(--line-strong);border-radius:5px;background:var(--surface-2);
+  padding:.55rem .7rem;transition:border-color .35s ease,background-color .35s ease,opacity .35s ease}
+.folder.dim{opacity:.4}
+.folder.open{border-color:var(--hit);background:var(--hit-soft)}
+.fname{display:flex;align-items:baseline;gap:.5rem;font-family:"Poppins",sans-serif;
+  font-size:.85rem;font-weight:700;color:var(--muted)}
+.folder.open .fname{color:var(--ink)}
+.fcount{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.7rem;
+  color:var(--muted);font-weight:400}
+.pages{display:none;flex-direction:column;gap:.28rem;margin-top:.5rem}
+.folder.open .pages{display:flex}
+.page{font-size:.79rem;color:var(--muted);padding:.32em .5em;border-radius:3px;
+  background:var(--surface);border:1px solid var(--line);transition:all .3s ease}
+.page.pulled{border-color:var(--hit);color:var(--ink);font-weight:600;
+  box-shadow:0 0 0 3px var(--hit-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{font-size:.8rem;font-weight:600;padding:.45em .7em;border-radius:99px;cursor:pointer;
+  background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);
+  transition:all .15s ease}
+.chip:hover{color:var(--ink);border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--query);border-color:var(--query);color:var(--surface)}
+.side{display:flex;flex-direction:column;gap:.9rem;min-width:0}
+.stat{display:flex;align-items:baseline;gap:.5rem}
+.statn{font-size:1.9rem;font-weight:700;line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--hit)}
+.stat span{font-size:.8rem;color:var(--muted);font-family:"Poppins",sans-serif;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase}
+.cites{display:flex;flex-direction:column;gap:.35rem;min-height:5.4rem}
+.cite{display:flex;gap:.5rem;align-items:baseline;font-size:.82rem;font-weight:600;
+  padding:.42em .55em;border-radius:4px;border-left:3px solid var(--hit);
+  background:var(--hit-soft);color:var(--ink);opacity:0;transform:translateX(-6px);
+  transition:opacity .3s ease,transform .3s ease}
+.cite.in{opacity:1;transform:none}
+.cite em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.7rem;color:var(--muted);flex:none}
+.answer{border-top:1px solid var(--line);padding-top:.8rem;font-size:.98rem;color:var(--ink-2);
+  opacity:0;transition:opacity .4s ease;min-height:4.2rem}
+.answer.in{opacity:1}
+.answer q{quotes:"“" "”";color:var(--ink)}
+
+/* ================= keyword vs meaning ================= */
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.vs > div{background:var(--surface);padding:1.15rem 1.2rem;display:flex;flex-direction:column;gap:.7rem}
+.vs h3{margin:0;font-family:"Poppins",sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+.q{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink)}
+.res{display:flex;flex-direction:column;gap:.3rem;font-size:.86rem}
+.res b{font-weight:400;padding:.35em .5em;border-radius:3px;background:var(--surface-2);
+  border:1px solid var(--line)}
+.res b.miss{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.res b.win{background:var(--hit-soft);border-color:var(--hit);color:var(--ink);font-weight:600}
+.res b mark{background:color-mix(in srgb,var(--hit) 30%,transparent);color:inherit;padding:0 .1em}
+.verdict{font-size:.9rem;color:var(--muted);margin-top:auto}
+
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1.4rem;
+  padding-top:.4rem}
+.strip div{display:flex;flex-direction:column;gap:.3rem}
+.strip b{font-family:"Poppins",sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--hit)}
+.strip p{font-size:.92rem;color:var(--ink-2)}
+
+footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-direction:column;gap:1.2rem}
+.acronym{font-size:.95rem;color:var(--muted);max-width:64ch}
+.acronym strong{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+</style>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html" aria-current="page">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <h1>Look it up,<br>then answer</h1>
+    <p class="lede measure">It was never trained on your documents. It does not remember them — it <strong>searches</strong> them.</p>
+  </header>
+
+  <div class="panel">
+    <div class="flow">
+      <div class="band">
+        <span class="bandlabel">Once, ahead of time</span>
+        <div class="row" id="rowA"></div>
+      </div>
+
+      <div class="vconn" id="vdown"><div class="bar"><i></i></div><span>stored</span></div>
+      <div class="index" id="indexNode">
+        <span class="t">The cabinet</span>
+        <div class="dotfield" id="dotfield"></div>
+      </div>
+      <div class="vconn" id="vup"><div class="bar"><i></i></div><span>searched</span></div>
+
+      <div class="band">
+        <span class="bandlabel">Every time you ask</span>
+        <div class="row" id="rowB"></div>
+      </div>
+
+      <p class="caption" id="caption"></p>
+    </div>
+    <div class="flowbar">
+      <button id="flowPlay">Pause</button>
+      <button id="flowStep">Step</button>
+    </div>
+  </div>
+  <p class="note measure" style="margin-top:.9rem">The top row happens once, without you. The bottom row happens on every question.</p>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">The looking-up, in the open</span>
+      <h2>Three pages go on the desk</h2>
+      <p class="lede measure">It finds the few passages that answer you, puts those on the desk, and writes from them.</p>
+    </div>
+
+    <div class="panel">
+      <div class="cab">
+        <div class="folders" id="folders"></div>
+        <div class="side">
+          <div class="chips" id="qchips"></div>
+          <div class="stat"><span class="statn" id="handed">0</span><span>of <b id="total">0</b> passages on the desk</span></div>
+          <div class="cites" id="cites"></div>
+          <div class="answer" id="answer"></div>
+        </div>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">Everything else stayed in the drawer. Here all three came from one folder; often they come from several.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Why it finds things you did not name</span>
+      <h2>Not a word in common</h2>
+    </div>
+    <div class="vs">
+      <div>
+        <h3>Searching for words</h3>
+        <p class="q">"how many days off do I get?"</p>
+        <div class="res">
+          <b class="miss">Annual leave entitlement — 26 days</b>
+          <b class="miss">Carry-over of unused leave</b>
+          <b class="miss">Public holidays by country</b>
+        </div>
+        <p class="verdict">No document contains "days off". Nothing found.</p>
+      </div>
+      <div>
+        <h3>Searching for meaning</h3>
+        <p class="q">"how many days off do I get?"</p>
+        <div class="res">
+          <b class="win">Annual <mark>leave entitlement</mark> — 26 days</b>
+          <b class="win">Carry-over of unused <mark>leave</mark></b>
+          <b class="win">Public <mark>holidays</mark> by country</b>
+        </div>
+        <p class="verdict">Same question. Found, because "leave" and "days off" sit next to each other on the map.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="strip">
+      <div><b>What it fixes</b><p>It stops guessing. Instead of improvising from training data, it quotes your page.</p></div>
+      <div><b>What still breaks</b><p>If the search misses, the answer is built on the wrong pages, just as confidently.</p></div>
+      <div><b>What you can do</b><p>Ask in the words your documents use. Check the citation, not just the answer.</p></div>
+    </div>
+    <p class="acronym"><strong>For the record.</strong> The technical name is RAG — Retrieval-Augmented Generation: the looking-up, the passages added to what it can see, the answer written from them.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ================= pipeline ================= */
+const ROW_A = ["Your documents", "Cut into short passages", "Filed by meaning"];
+const ROW_B = ["Your question", "Find the passages that fit", "Put them on the desk", "Answer, and show the source"];
+const CAPTIONS = [
+  ["Documents", "A policy, a contract, a pile of meeting notes. Handed over, not memorised."],
+  ["Passages", "Each document is cut into short passages, small enough to quote."],
+  ["Filed", "Filed by what it means, not by the words it uses."],
+  ["The cabinet", "That is the whole preparation. It happens once, before anyone asks anything."],
+  ["Question", "You ask something, in your own words."],
+  ["Looking up", "It goes through the cabinet and picks out the few passages that fit."],
+  ["The desk", "Only those passages go on the desk. The rest of the cabinet stays shut."],
+  ["Answer", "Written from the passages in front of it, and it can show you where each came from."]
+];
+
+function buildRow(host, labels, offset){
+  labels.forEach((text, i) => {
+    if (i){
+      const c = document.createElement("div");
+      c.className = "conn";
+      c.innerHTML = "<i></i>";
+      c.dataset.conn = offset + i;
+      host.appendChild(c);
+    }
+    const n = document.createElement("div");
+    n.className = "node";
+    n.textContent = text;
+    n.dataset.node = offset + i;
+    host.appendChild(n);
+  });
+}
+buildRow(document.getElementById("rowA"), ROW_A, 0);
+buildRow(document.getElementById("rowB"), ROW_B, 4);
+
+const dotfield = document.getElementById("dotfield");
+for (let i = 0; i < 90; i++){
+  const b = document.createElement("b");
+  if (i % 7 === 3) b.className = "lit";   // the few a single question pulls out
+  dotfield.appendChild(b);
+}
+
+const indexNode = document.getElementById("indexNode");
+const vdown = document.getElementById("vdown"), vup = document.getElementById("vup");
+const caption = document.getElementById("caption");
+const flowPlay = document.getElementById("flowPlay");
+let stage = -1, flowTimer = null;
+
+function paintFlow(){
+  document.querySelectorAll("[data-node]").forEach(el => {
+    el.classList.toggle("on", Number(el.dataset.node) <= stage);
+  });
+  document.querySelectorAll("[data-conn]").forEach(el => {
+    el.classList.toggle("on", Number(el.dataset.conn) <= stage);
+  });
+  indexNode.classList.toggle("on", stage >= 3);
+  vdown.classList.toggle("on", stage >= 3);
+  vup.classList.toggle("on", stage >= 5);
+  const c = CAPTIONS[Math.max(0, Math.min(CAPTIONS.length - 1, stage))];
+  caption.innerHTML = "<b>" + c[0] + "</b>" + c[1];
+}
+function flowStep(){
+  stage = stage >= CAPTIONS.length - 1 ? 0 : stage + 1;
+  if (stage === 0){
+    document.querySelectorAll("[data-node],[data-conn]").forEach(el => el.classList.remove("on"));
+    indexNode.classList.remove("on"); vdown.classList.remove("on"); vup.classList.remove("on");
+  }
+  paintFlow();
+}
+function flowStop(){ if (flowTimer){ clearInterval(flowTimer); flowTimer = null; } flowPlay.textContent = "Play"; }
+function flowRun(){ flowStop(); flowPlay.textContent = "Pause"; flowTimer = setInterval(flowStep, 1700); }
+flowPlay.addEventListener("click", () => { flowTimer ? flowStop() : flowRun(); });
+document.getElementById("flowStep").addEventListener("click", () => { flowStop(); flowStep(); });
+if (reduced){ stage = CAPTIONS.length - 1; paintFlow(); flowPlay.textContent = "Play"; }
+else { stage = 0; paintFlow(); flowRun(); }
+
+/* ================= the filing cabinet =================
+   The earlier version of this drew every passage as a dot on a map of meaning. It was
+   accurate but it asked the room to accept that meaning has coordinates, which is the
+   hardest idea on the page. Same mechanism, told with objects instead: folders, pages,
+   a desk. */
+const FOLDERS = [
+  { name:"HR policy", pages:[
+    "Annual leave entitlement — 26 days", "Carry-over of unused leave", "Public holidays by country",
+    "Parental leave", "Onboarding checklist", "Sick pay" ]},
+  { name:"Finance", pages:[
+    "Invoice approval limits", "Q3 forecast revised down 8%", "Travel expense caps",
+    "Procurement thresholds" ]},
+  { name:"Contracts", pages:[
+    "Termination for convenience — 60 days", "Notice periods and cure windows", "Auto-renewal clause",
+    "Liability cap", "Data processing addendum" ]},
+  { name:"Support", pages:[
+    "Tone with frustrated customers", "Escalation ladder", "Refund eligibility",
+    "Response time targets" ]},
+  { name:"Meeting notes", pages:[
+    "Steering 12 Mar — Nordic launch moved to Q4", "Blocker: localisation QA capacity",
+    "Owner assigned: platform team", "Retro: too many parallel workstreams", "Budget review deferred" ]},
+  { name:"Product specs", pages:[
+    "Supported file formats", "Offline mode limits", "Accessibility conformance",
+    "API rate limits", "Retention defaults" ]}
+];
+const TOTAL_PAGES = FOLDERS.reduce((n, f) => n + f.pages.length, 0);
+
+const QUESTIONS = [
+  { q:"How many days off do I get?", folder:0, pull:[0,1,2],
+    answer:"<q>26 days of annual leave</q>, plus public holidays, which vary by country. Unused days carry over under the rules in the policy." },
+  { q:"Can we get out of this contract early?", folder:2, pull:[0,1,2],
+    answer:"Yes — <q>termination for convenience with 60 days notice</q>. Watch the auto-renewal date, and note the cure window before it applies." },
+  { q:"Why did the Nordic launch slip?", folder:4, pull:[1,0,2],
+    answer:"<q>Localisation QA capacity</q> was the blocker. Steering moved the launch to Q4 on 12 March and handed it to the platform team." }
+];
+
+const foldersEl = document.getElementById("folders");
+const citesEl   = document.getElementById("cites");
+const answerEl  = document.getElementById("answer");
+const handedEl  = document.getElementById("handed");
+document.getElementById("total").textContent = TOTAL_PAGES;
+
+FOLDERS.forEach((f, fi) => {
+  const d = document.createElement("div");
+  d.className = "folder";
+  d.dataset.folder = fi;
+  d.innerHTML = '<div class="fname">' + f.name +
+                '<span class="fcount">' + f.pages.length + ' pages</span></div>' +
+                '<div class="pages">' +
+                f.pages.map((p, pi) => '<div class="page" data-page="' + pi + '">' + p + '</div>').join("") +
+                '</div>';
+  foldersEl.appendChild(d);
+});
+
+let timers = [];
+function ask(qi){
+  timers.forEach(clearTimeout); timers = [];
+  const q = QUESTIONS[qi];
+  const later = (ms, fn) => timers.push(setTimeout(fn, reduced ? 0 : ms));
+
+  document.querySelectorAll("[data-folder]").forEach(el => {
+    el.classList.remove("open");
+    el.classList.add("dim");
+    el.querySelectorAll(".page").forEach(p => p.classList.remove("pulled"));
+  });
+  citesEl.innerHTML = "";
+  answerEl.classList.remove("in");
+  handedEl.textContent = "0";
+  document.querySelectorAll("[data-q]").forEach(b =>
+    b.setAttribute("aria-pressed", String(Number(b.dataset.q) === qi)));
+
+  const folderEl = document.querySelector('[data-folder="' + q.folder + '"]');
+  later(400, () => { folderEl.classList.remove("dim"); folderEl.classList.add("open"); });
+
+  q.pull.forEach((pi, n) => later(750 + n * 260, () => {
+    folderEl.querySelector('[data-page="' + pi + '"]').classList.add("pulled");
+    const row = document.createElement("div");
+    row.className = "cite";
+    row.innerHTML = "<span>" + FOLDERS[q.folder].pages[pi] + "</span><em>" +
+                    FOLDERS[q.folder].name + "</em>";
+    citesEl.appendChild(row);
+    // force layout so the transition has a start value, rather than waiting for a frame:
+    // requestAnimationFrame is throttled in background tabs and would leave these invisible
+    void row.offsetWidth;
+    row.classList.add("in");
+    handedEl.textContent = n + 1;
+  }));
+
+  answerEl.innerHTML = q.answer;
+  later(1700, () => answerEl.classList.add("in"));
+}
+
+const chipHost = document.getElementById("qchips");
+QUESTIONS.forEach((q, i) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.dataset.q = i;
+  b.setAttribute("aria-pressed", "false");
+  b.textContent = q.q;
+  b.addEventListener("click", () => ask(i));
+  chipHost.appendChild(b);
+});
+ask(0);
+</script>

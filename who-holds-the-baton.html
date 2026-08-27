@@ -1,0 +1,417 @@
+<title>Who Holds the Baton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --you:#303030;
+  --you-fg:#FFFFFF;
+  --ai:#DF3C4B;
+  --ai-soft:rgba(223,60,75,.12);
+  --ai-fg:#FFFFFF;
+  --stop:#C9C9C2;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;font-size:1.0625rem;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:56ch}
+
+h1,h2,.eyebrow,button,.lanename,.cnt,.seg,.tag,.shellcap{
+  font-family:"Poppins",system-ui,sans-serif}
+h1,h2{text-wrap:balance;margin:0}
+h1{font-weight:800;
+   font-size:clamp(2.2rem,1.1rem + 5.4vw,4.4rem);line-height:.95;letter-spacing:-.025em}
+h2{font-weight:700;
+   font-size:clamp(1.45rem,1.15rem + 1.4vw,2.1rem);line-height:1.08;letter-spacing:-.018em}
+p{margin:0}
+.eyebrow{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);}
+.lede{font-size:clamp(1.05rem,1rem + .35vw,1.2rem);color:var(--ink-2)}
+.note{font-size:.92rem;color:var(--muted)}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+header.hero{position:relative}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+header.hero{padding:clamp(2rem,5vh,3.6rem) 0 1.8rem;display:flex;flex-direction:column;gap:1rem}
+section{padding:clamp(2.4rem,6vh,4.2rem) 0;border-top:1px solid var(--line)}
+.head{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.pad{padding:clamp(1rem,3vw,1.8rem)}
+
+button{font-size:.86rem;font-weight:600;
+  padding:.45em .9em;border-radius:4px;cursor:pointer;
+  background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);
+  transition:color .15s ease,border-color .15s ease}
+button:hover{color:var(--ink);border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+
+/* ================= the two lanes ================= */
+.lanes{display:flex;flex-direction:column;gap:clamp(1.4rem,4vw,2.2rem)}
+.lane{display:flex;flex-direction:column;gap:.6rem}
+.lanehead{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+.lanename{font-size:1.05rem;font-weight:700;letter-spacing:-.01em}
+.lanesub{font-size:.9rem;color:var(--muted);font-family:"Poppins",sans-serif}
+.cnt{margin-left:auto;display:flex;align-items:baseline;gap:.4rem}
+.cnt b{font-size:1.5rem;font-weight:700;line-height:1;
+  color:var(--you);font-variant-numeric:tabular-nums}
+.cnt span{font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+.track{display:flex;align-items:stretch;gap:0;min-height:66px}
+.seg{flex:1 1 0;min-width:0;border-radius:4px;padding:.5rem .45rem;
+  display:flex;flex-direction:column;justify-content:center;gap:.2rem;
+  font-size:clamp(.6rem,.5rem + .28vw,.72rem);font-weight:600;line-height:1.25;
+  opacity:0;transform:scaleX(.35);transform-origin:left center;
+  transition:opacity .3s ease,transform .35s cubic-bezier(.4,0,.2,1)}
+.seg.in{opacity:1;transform:none}
+.seg.you{background:var(--you);color:var(--you-fg)}
+.seg.ai{background:var(--ai-soft);color:var(--ink);border:1px solid var(--ai)}
+.seg .who{font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.72}
+.seg.ai .who{color:var(--ai);opacity:1}
+.seg .what{overflow:hidden}
+
+/* a visible break in the bar: the process has stopped and is waiting for a person */
+.stopmark{flex:0 0 clamp(12px,2.4vw,26px);align-self:stretch;position:relative;
+  opacity:0;transition:opacity .3s ease}
+.stopmark.in{opacity:1}
+.stopmark::before{content:"";position:absolute;left:50%;top:6px;bottom:6px;
+  border-left:2px dashed var(--stop)}
+
+.bars{display:flex;gap:.6rem;align-items:flex-end;padding-top:.2rem}
+.legend{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem;font-size:.82rem;color:var(--muted);
+  padding:0 clamp(1rem,3vw,1.8rem) 1.1rem}
+.legend b{display:inline-flex;align-items:center;gap:.4rem;font-weight:400}
+.legend i{width:.75rem;height:.75rem;border-radius:2px;flex:none}
+.legend i.dash{width:0;height:.9rem;border-left:2px dashed var(--stop)}
+
+.caption{padding:0 clamp(1rem,3vw,1.8rem) 1.1rem;font-size:.98rem;color:var(--ink-2);min-height:3.1em}
+.caption b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--ai);
+  font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+  padding:.75rem clamp(1rem,3vw,1.8rem);border-top:1px solid var(--line)}
+.tick{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--muted)}
+
+/* ================= same core, two shells ================= */
+.shells{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.shell{background:var(--surface);padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;gap:.7rem}
+.shellcap{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.shell svg{display:block;width:100%;height:auto;overflow:visible}
+.shell p{font-size:.93rem;color:var(--ink-2)}
+.core-b{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.4;rx:3}
+.core-t{fill:var(--ink-2);font-family:"IBM Plex Mono",monospace;font-size:11px}
+.sh-line{fill:none;stroke:var(--ai);stroke-width:2.2}
+.sh-head{fill:var(--ai)}
+.sh-lbl{fill:var(--ai);font-family:"Poppins",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.1em;text-anchor:middle}
+.sh-goal{fill:var(--ai-soft);stroke:var(--ai);stroke-width:1.6;rx:4}
+.sh-goalt{fill:var(--ai);font-family:"Poppins",sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.08em;text-anchor:middle}
+
+/* ================= when to reach for which ================= */
+.when{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.when > div{background:var(--surface);padding:1.15rem 1.25rem;display:flex;flex-direction:column;gap:.6rem}
+.tag{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.tag.c{color:var(--muted)}
+.tag.a{color:var(--ai)}
+.when ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.35rem}
+.when li{font-size:.95rem;color:var(--ink-2)}
+
+footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-direction:column;gap:1.2rem}
+.acronym{font-size:.95rem;color:var(--muted);max-width:64ch}
+.acronym strong{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+</style>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html">Home</a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html" aria-current="page">Chat vs agent</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <h1>Who holds<br>the baton</h1>
+    <p class="lede measure">Same model, same rules, documents and tools. What changes is <strong>how often it hands control back to you</strong>.</p>
+  </header>
+
+  <div class="panel">
+    <div class="pad">
+      <p class="note" style="margin-bottom:1.3rem">One task, both ways —
+      <em>"find out why the Nordic launch slipped and send the CFO a summary."</em></p>
+      <div class="lanes">
+        <div class="lane">
+          <div class="lanehead">
+            <span class="lanename">Chat</span>
+            <span class="lanesub">you drive, one question at a time</span>
+            <span class="cnt"><b id="cntChat">0</b><span>times it needed you</span></span>
+          </div>
+          <div class="track" id="trackChat"></div>
+        </div>
+        <div class="lane">
+          <div class="lanehead">
+            <span class="lanename">Agent</span>
+            <span class="lanesub">you set the goal, it keeps going</span>
+            <span class="cnt"><b id="cntAgent">0</b><span>times it needed you</span></span>
+          </div>
+          <div class="track" id="trackAgent"></div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <b><i style="background:var(--you)"></i>Your turn</b>
+      <b><i style="background:var(--ai-soft);border:1px solid var(--ai)"></i>It works</b>
+      <b><i class="dash"></i>Control passes to you</b>
+    </div>
+    <p class="caption" id="caption"></p>
+    <div class="bar">
+      <button id="play">Pause</button>
+      <button id="step">Step</button>
+      <button id="reset">Restart</button>
+      <span class="tick" id="tickstat"></span>
+    </div>
+  </div>
+  <p class="note measure" style="margin-top:.9rem">The same steps, the same work. The difference is the dashed lines: five stops against two.</p>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Not smarter, differently wrapped</span>
+      <h2>Same core, two shells</h2>
+    </div>
+    <div class="shells">
+      <div class="shell">
+        <span class="shellcap">Chat</span>
+        <svg viewBox="0 0 300 190" role="img" aria-label="A question goes in, an answer comes out, once">
+          <rect class="core-b" x="86" y="46" width="128" height="22"></rect><text class="core-t" x="96" y="61">the model</text>
+          <rect class="core-b" x="86" y="72" width="128" height="22"></rect><text class="core-t" x="96" y="87">your rules</text>
+          <rect class="core-b" x="86" y="98" width="128" height="22"></rect><text class="core-t" x="96" y="113">your documents</text>
+          <rect class="core-b" x="86" y="124" width="128" height="22"></rect><text class="core-t" x="96" y="139">your tools</text>
+          <path class="sh-line" d="M 14 96 H 74"></path>
+          <polygon class="sh-head" points="74,90 86,96 74,102"></polygon>
+          <text class="sh-lbl" x="44" y="82">ASK</text>
+          <path class="sh-line" d="M 214 96 H 274"></path>
+          <polygon class="sh-head" points="274,90 286,96 274,102"></polygon>
+          <text class="sh-lbl" x="248" y="82">ANSWER</text>
+        </svg>
+        <p>One pass. It stops the moment it has replied.</p>
+      </div>
+      <div class="shell">
+        <span class="shellcap">Agent</span>
+        <svg viewBox="0 0 300 190" role="img" aria-label="A goal goes in, the core loops until done, then a result comes out">
+          <rect class="core-b" x="86" y="46" width="128" height="22"></rect><text class="core-t" x="96" y="61">the model</text>
+          <rect class="core-b" x="86" y="72" width="128" height="22"></rect><text class="core-t" x="96" y="87">your rules</text>
+          <rect class="core-b" x="86" y="98" width="128" height="22"></rect><text class="core-t" x="96" y="113">your documents</text>
+          <rect class="core-b" x="86" y="124" width="128" height="22"></rect><text class="core-t" x="96" y="139">your tools</text>
+          <rect class="sh-goal" x="104" y="6" width="92" height="24"></rect>
+          <text class="sh-goalt" x="150" y="22">THE GOAL</text>
+          <!-- the loop: down the right, back up the left, until the goal is met -->
+          <path class="sh-line" d="M 224 40 H 258 A 12 12 0 0 1 270 52 V 152 A 12 12 0 0 1 258 164 H 42 A 12 12 0 0 1 30 152 V 52 A 12 12 0 0 1 42 40 H 76"></path>
+          <polygon class="sh-head" points="76,34 88,40 76,46"></polygon>
+          <text class="sh-lbl" x="150" y="180">UNTIL DONE, OR STUCK</text>
+          <path class="sh-line" d="M 214 96 H 292"></path>
+          <polygon class="sh-head" points="292,90 300,96 292,102"></polygon>
+        </svg>
+        <p>A loop around the same core, pointed at a goal.</p>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">Nothing in the stack changed. An agent is the loop, plus something
+    to aim at.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Picking one</span>
+      <h2>"Answer this" or "handle this"</h2>
+    </div>
+    <div class="when">
+      <div>
+        <span class="tag c">Reach for chat</span>
+        <ul>
+          <li>You want to think, not delegate.</li>
+          <li>The next question depends on this answer.</li>
+          <li>You would have to check every step anyway.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="tag a">Reach for an agent</span>
+        <ul>
+          <li>The goal is clear and you can describe "done".</li>
+          <li>It is several steps of legwork you already understand.</li>
+          <li>You would rather review a result than steer a process.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="acronym"><strong>The catch.</strong> The agent ran five steps of work before checking in. That is the point, and the risk: if step two went wrong, you find out five steps later. The same trade as delegating to a person — so keep goals small enough to describe, and let anything that leaves the building stop and ask.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* the same task, run both ways; `you:true` marks a segment that needs a person */
+const CHAT = [
+  { you:true,  what:"“What's in the March steering notes?”" },
+  { you:false, what:"Answers from the notes" },
+  { you:true,  what:"“So what blocked it?”" },
+  { you:false, what:"Answers" },
+  { you:true,  what:"“Did the Q3 forecast change?”" },
+  { you:false, what:"Answers" },
+  { you:true,  what:"“Draft an email to the CFO”" },
+  { you:false, what:"Drafts it" },
+  { you:true,  what:"You send it yourself" }
+];
+const AGENT = [
+  { you:true,  what:"“Find why the launch slipped, summarise for the CFO”" },
+  { you:false, what:"Plans the steps" },
+  { you:false, what:"Searches the documents" },
+  { you:false, what:"Reads the steering notes" },
+  { you:false, what:"Reads the forecast" },
+  { you:false, what:"Drafts the email" },
+  { you:false, what:"Asks: send this?" },
+  { you:true,  what:"You approve" }
+];
+const CAPTIONS = [
+  ["Step 1", "Both start the same way: you say what you want."],
+  ["Step 2", "Chat answers and stops. The agent starts planning, and does not stop."],
+  ["Step 3", "Chat needs a second question from you. The agent has already moved to the documents."],
+  ["Step 4", "Another answer, another full stop. The agent is reading the steering notes."],
+  ["Step 5", "Your third question. The agent is checking the forecast, unprompted."],
+  ["Step 6", "Chat answers again. The agent is already drafting."],
+  ["Step 7", "You ask for a draft. The agent has written one, and reached the one thing it should not do alone."],
+  ["Step 8", "The agent stops and asks; you approve. Chat, meanwhile, produces its draft."],
+  ["Done", "Chat needs one more step — you, sending it by hand. Five turns against two."]
+];
+
+const LANES = [
+  { data:CHAT,  track:document.getElementById("trackChat"),  cnt:document.getElementById("cntChat"),  n:0 },
+  { data:AGENT, track:document.getElementById("trackAgent"), cnt:document.getElementById("cntAgent"), n:0 }
+];
+const caption  = document.getElementById("caption");
+const tickstat = document.getElementById("tickstat");
+const playBtn  = document.getElementById("play");
+const MAX = Math.max(CHAT.length, AGENT.length);
+let at = 0, timer = null;
+
+function build(){
+  LANES.forEach(l => {
+    l.track.innerHTML = "";
+    l.n = 0;
+    l.cnt.textContent = "0";
+    l.data.forEach((s, i) => {
+      // one dashed mark per turn that needs a person, so the marks and the counter agree
+      if (s.you){
+        const m = document.createElement("div");
+        m.className = "stopmark";
+        m.dataset.at = i;
+        l.track.appendChild(m);
+      }
+      const d = document.createElement("div");
+      d.className = "seg " + (s.you ? "you" : "ai");
+      d.dataset.at = i;
+      d.innerHTML = '<span class="who">' + (s.you ? "You" : "It") + '</span>' +
+                    '<span class="what">' + s.what + "</span>";
+      l.track.appendChild(d);
+    });
+  });
+}
+
+function paint(){
+  LANES.forEach(l => {
+    l.track.querySelectorAll("[data-at]").forEach(el =>
+      el.classList.toggle("in", Number(el.dataset.at) < at));
+    l.n = l.data.slice(0, at).filter(s => s.you).length;
+    l.cnt.textContent = l.n;
+  });
+  const c = CAPTIONS[Math.min(CAPTIONS.length - 1, Math.max(0, at - 1))];
+  caption.innerHTML = "<b>" + c[0] + "</b>" + c[1];
+  tickstat.textContent = "step " + Math.min(at, MAX) + " of " + MAX;
+}
+
+function stepFwd(){
+  at = at >= MAX ? 0 : at + 1;
+  if (at === 0) at = 1;
+  paint();
+  if (at >= MAX) stop();
+}
+function stop(){ if (timer){ clearInterval(timer); timer = null; } playBtn.textContent = at >= MAX ? "Again" : "Play"; }
+function run(){ stop(); if (at >= MAX){ at = 0; } playBtn.textContent = "Pause"; timer = setInterval(stepFwd, 1500); }
+playBtn.addEventListener("click", () => { timer ? stop() : run(); });
+document.getElementById("step").addEventListener("click", () => { stop(); stepFwd(); });
+document.getElementById("reset").addEventListener("click", () => { stop(); at = 0; paint(); playBtn.textContent = "Play"; });
+
+build();
+if (reduced){ at = MAX; paint(); playBtn.textContent = "Again"; }
+else { at = 1; paint(); run(); }
+</script>

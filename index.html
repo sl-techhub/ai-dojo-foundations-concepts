@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundation Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --shadow-lift:0 2px 4px rgba(48,48,48,.05), 0 18px 40px -24px rgba(48,48,48,.34);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;
+  font-size:1.0625rem;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:63ch}
+
+h1,h2,h3,.ui,.eyebrow{font-family:"Poppins",system-ui,sans-serif}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{
+  font-weight:800;
+  font-size:clamp(2.6rem,1.6rem + 4.6vw,4.6rem);
+  line-height:.94;letter-spacing:-.025em;
+}
+h1 em{font-style:normal;color:var(--dojo)}
+h3{font-weight:600;font-size:1.0625rem;line-height:1.3;letter-spacing:-.008em}
+p{margin:0}
+.eyebrow{
+  font-size:var(--step);font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);
+}
+.lede{font-size:clamp(1.05rem,1rem + .35vw,1.22rem);color:var(--ink-2);line-height:1.55}
+.note{font-size:.95rem;color:var(--muted)}
+strong{font-weight:500;color:var(--ink)}
+
+/* ---------- logotype ---------- */
+.dojo{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.navlinks a{font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+/* ---------- the slide: list left, headline right ---------- */
+.slide{
+  position:relative;
+  padding:clamp(2.2rem,6vh,4rem) 0 clamp(5rem,13vh,8rem);
+  display:grid;gap:clamp(1.8rem,4vw,3.4rem);
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  align-items:start;
+}
+@media (max-width:860px){
+  .slide{grid-template-columns:1fr}
+  .slide .headline{order:-1}
+}
+
+.headline{display:flex;flex-direction:column;gap:1.1rem;padding-top:clamp(0rem,1.5vh,1.2rem)}
+.headline .lede{max-width:34ch}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem .9rem;align-items:center;
+  font-size:.9rem;color:var(--muted)}
+.meta .dot{width:4px;height:4px;border-radius:50%;background:var(--line-strong)}
+
+/* the numbered rows of slide two, each one a link */
+.menu{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.6rem;
+  counter-reset:none}
+.menu li{margin:0}
+.menu a{
+  display:flex;align-items:center;gap:clamp(.8rem,2vw,1.15rem);
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;
+  box-shadow:var(--shadow);
+  padding:.95rem clamp(.9rem,2.4vw,1.25rem);
+  text-decoration:none;color:var(--ink);
+  transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.menu .n{
+  flex:none;width:1.9rem;height:1.9rem;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:.86rem;font-weight:600;
+  background:var(--surface-2);color:var(--muted);
+  border:1px solid var(--line);
+  transition:background-color .16s ease,color .16s ease,border-color .16s ease;
+}
+.menu .txt{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.menu .t{font-weight:600;font-size:1.02rem;line-height:1.25;letter-spacing:-.008em}
+.menu .s{font-size:.88rem;line-height:1.35;color:var(--muted)}
+.menu .go{
+  margin-left:auto;flex:none;width:18px;height:18px;fill:none;
+  stroke:var(--line-strong);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .16s ease,transform .16s ease;
+}
+
+/* the deck highlights one row in red; here the row you point at */
+.menu a:hover,.menu a:focus-visible{
+  background:var(--dojo);border-color:var(--dojo);
+  box-shadow:var(--shadow-lift);transform:translateY(-1px);
+  outline:none;
+}
+.menu a:hover .t,.menu a:focus-visible .t,
+.menu a:hover .s,.menu a:focus-visible .s{color:#fff}
+.menu a:hover .n,.menu a:focus-visible .n{
+  background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.5)}
+.menu a:hover .go,.menu a:focus-visible .go{stroke:#fff;transform:translateX(3px)}
+.menu a:focus-visible{box-shadow:var(--shadow-lift),0 0 0 3px var(--accent-soft)}
+
+/* torii and clouds sitting in the corner, as on the slide */
+.marks{position:absolute;right:clamp(-1.5rem,-1.5vw,0rem);bottom:0;
+  width:clamp(140px,21vw,240px);height:auto;pointer-events:none;z-index:-1}
+.marks .cloud{fill:var(--dojo);opacity:.5}
+.marks .gate{fill:var(--ink);opacity:.16}
+@media (max-width:860px){.marks{display:none}}
+
+/* ---------- foot ---------- */
+footer{border-top:1px solid var(--line);padding:1.6rem 0 3rem;
+  display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:baseline}
+footer .note{margin-right:auto}
+.hint{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+    </div>
+  </nav>
+
+  <main class="slide">
+    <svg class="marks" viewBox="0 0 260 190" aria-hidden="true">
+      <!-- clouds, upper right of the block -->
+      <g class="cloud">
+        <rect x="150" y="6"   width="104" height="7" rx="3.5"></rect>
+        <rect x="178" y="11"  width="9"   height="15"></rect>
+        <rect x="196" y="46"  width="58"  height="7" rx="3.5"></rect>
+        <rect x="214" y="51"  width="9"   height="13"></rect>
+      </g>
+      <!-- two gates, the way the deck stacks them -->
+      <g class="gate">
+        <rect x="30"  y="96"  width="118" height="9"  rx="3"></rect>
+        <rect x="42"  y="113" width="94"  height="8"  rx="3"></rect>
+        <rect x="60"  y="100" width="10"  height="82"></rect>
+        <rect x="108" y="100" width="10"  height="82"></rect>
+        <rect x="168" y="126" width="80"  height="8"  rx="3"></rect>
+        <rect x="178" y="140" width="62"  height="7"  rx="3"></rect>
+        <rect x="190" y="130" width="8"   height="52"></rect>
+        <rect x="220" y="130" width="8"   height="52"></rect>
+      </g>
+    </svg>
+
+    <ol class="menu">
+      <li>
+        <a href="where-words-break.html">
+          <span class="n">1</span>
+          <span class="txt">
+            <span class="t">Where words break</span>
+            <span class="s">Tokens: the pieces a model actually reads</span>
+          </span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </li>
+      <li>
+        <a href="the-desk-fills-up.html">
+          <span class="n">2</span>
+          <span class="txt">
+            <span class="t">The desk fills up</span>
+            <span class="s">The context window, and what falls off it</span>
+          </span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </li>
+      <li>
+        <a href="look-it-up.html">
+          <span class="n">3</span>
+          <span class="txt">
+            <span class="t">Look it up, then answer</span>
+            <span class="s">Your documents: searched, not remembered</span>
+          </span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </li>
+      <li>
+        <a href="a-set-of-keys.html">
+          <span class="n">4</span>
+          <span class="txt">
+            <span class="t">A set of keys</span>
+            <span class="s">Tools: it asks, something else acts</span>
+          </span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </li>
+      <li>
+        <a href="who-holds-the-baton.html">
+          <span class="n">5</span>
+          <span class="txt">
+            <span class="t">Who holds the baton</span>
+            <span class="s">Chat or agent: how often control comes back</span>
+          </span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </li>
+    </ol>
+
+    <div class="headline">
+      <p class="eyebrow">Today's session</p>
+      <h1>Foundation<br><em>concepts</em></h1>
+      <p class="lede">Five ideas that explain how AI really works under the hood — each one a page you can play with, not a slide you sit through.</p>
+      <div class="meta">
+        <span>5 animations</span><span class="dot"></span>
+        <span>self-paced</span><span class="dot"></span>
+        <span>no setup</span>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p class="note">One vocabulary. The rest of AI Dojo builds on top.</p>
+    <p class="hint">Pick any station to start</p>
+  </footer>
+</div>
+
+</body>
+</html>
