@@ -311,10 +311,10 @@ a:hover{text-decoration-color:var(--blade)}
       <button id="play">Cut it up</button>
       <button class="ghost" id="step">Step</button>
       <button class="ghost" id="reset">Reset</button>
-      <span class="counter"><b id="tcount">0</b> tokens · <span id="ccount">37</span> characters</span>
+      <span class="counter"><b id="tcount">0</b> tokens · <span id="ccount">107</span> characters</span>
     </div>
   </div>
-  <p class="note measure">Nine tokens, thirty-eight characters. <code>Tokenization</code> is two pieces, not one, and every space travels with the word after it. Same piece, same colour.</p>
+  <p class="note measure">Nineteen tokens, a hundred and seven characters — close to six characters a piece, which is the cheap case. Every word here survives whole, <code>extraordinary</code> included, and every space travels with the word after it. Same piece, same colour.</p>
 
   <!-- 01 -->
   <section class="station">
@@ -539,7 +539,9 @@ function renderChips(host, tokens, opts){
 }
 
 /* ================= hero: the cut ================= */
-const HERO = ["Token","ization"," is"," not"," the"," same"," as"," words","."];
+const HERO = ["An"," ordinary"," English"," sentence"," stays"," cheap",","," but",
+              " if"," you"," have"," some"," extraordinary"," words"," it"," can",
+              " become"," expensive","."];
 const cutrow = document.getElementById("cutrow");
 const blade  = document.getElementById("blade");
 const tcount = document.getElementById("tcount");
