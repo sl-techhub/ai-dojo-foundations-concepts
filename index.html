@@ -78,6 +78,9 @@ strong{font-weight:500;color:var(--ink)}
   border:1px solid transparent;white-space:nowrap;
   transition:color .15s ease,border-color .15s ease,background-color .15s ease}
 .navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a.home{display:inline-flex;align-items:center;padding:.42em .6em}
+.navlinks a.home svg{width:16px;height:16px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
 .navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
 .navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (max-width:620px){.navlinks{margin-left:0;width:100%}}
@@ -150,11 +153,6 @@ strong{font-weight:500;color:var(--ink)}
 .marks .gate{fill:var(--ink);opacity:.16}
 @media (max-width:860px){.marks{display:none}}
 
-/* ---------- foot ---------- */
-footer{border-top:1px solid var(--line);padding:1.6rem 0 3rem;
-  display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:baseline}
-footer .note{margin-right:auto}
-.hint{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -172,7 +170,9 @@ footer .note{margin-right:auto}
       <span class="sep">Foundations</span>
     </a>
     <div class="navlinks">
-      <a href="index.html" aria-current="page">Home</a>
+      <a class="home" href="index.html" aria-current="page" aria-label="Home" title="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 10.6 12 3.4l8.8 7.2"/><path d="M5.6 9.6V20h12.8V9.6"/></svg>
+      </a>
       <a href="where-words-break.html">Tokens</a>
       <a href="the-desk-fills-up.html">Context</a>
       <a href="look-it-up.html">Documents</a>
@@ -267,11 +267,6 @@ footer .note{margin-right:auto}
       </div>
     </div>
   </main>
-
-  <footer>
-    <p class="note">One vocabulary. The rest of AI Dojo builds on top.</p>
-    <p class="hint">Pick any station to start</p>
-  </footer>
 </div>
 
 </body>

@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Who Holds the Baton</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,6 +73,9 @@ p{margin:0}
   border:1px solid transparent;white-space:nowrap;
   transition:color .15s ease,border-color .15s ease,background-color .15s ease}
 .navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a.home{display:inline-flex;align-items:center;padding:.42em .6em}
+.navlinks a.home svg{width:16px;height:16px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
 .navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
 .navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (max-width:620px){.navlinks{margin-left:0;width:100%}}
@@ -167,6 +175,8 @@ footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-
 
 @media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <nav class="topnav">
@@ -181,7 +191,9 @@ footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-
       <span class="sep">Foundations</span>
     </a>
     <div class="navlinks">
-      <a href="index.html">Home</a>
+      <a class="home" href="index.html" aria-label="Home" title="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 10.6 12 3.4l8.8 7.2"/><path d="M5.6 9.6V20h12.8V9.6"/></svg>
+      </a>
       <a href="where-words-break.html">Tokens</a>
       <a href="the-desk-fills-up.html">Context</a>
       <a href="look-it-up.html">Documents</a>
@@ -415,3 +427,5 @@ build();
 if (reduced){ at = MAX; paint(); playBtn.textContent = "Again"; }
 else { at = 1; paint(); run(); }
 </script>
+</body>
+</html>

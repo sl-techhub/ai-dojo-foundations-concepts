@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where Words Break</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +44,7 @@ body{
 .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
 .measure{max-width:63ch}
 
-h1,h2,h3,.ui,.eyebrow,button,input,th,.stat-n,.tab{
+h1,h2,h3,.ui,.eyebrow,button,th,.stat-n,.tab{
   font-family:"Poppins",system-ui,sans-serif;
 }
 h1,h2,h3{text-wrap:balance;margin:0}
@@ -94,6 +99,9 @@ header.hero{padding:clamp(2rem,5vh,3.6rem) 0 2.2rem}
   border:1px solid transparent;white-space:nowrap;
   transition:color .15s ease,border-color .15s ease,background-color .15s ease}
 .navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a.home{display:inline-flex;align-items:center;padding:.42em .6em}
+.navlinks a.home svg{width:16px;height:16px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
 .navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
 .navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (max-width:620px){.navlinks{margin-left:0;width:100%}}
@@ -174,7 +182,7 @@ button{
 button:hover{opacity:.82}
 button.ghost{background:transparent;color:var(--ink-2);border-color:var(--line-strong)}
 button.ghost:hover{color:var(--ink);border-color:var(--ink)}
-button:focus-visible,input:focus-visible,.tab:focus-visible{
+button:focus-visible,.tab:focus-visible{
   outline:2px solid var(--blade);outline-offset:2px;
 }
 .counter{
@@ -192,6 +200,10 @@ button:focus-visible,input:focus-visible,.tab:focus-visible{
 }
 .tab:hover{color:var(--ink)}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blade)}
+.tab{display:inline-flex;align-items:center;gap:.55em}
+.tab .tag{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--blade);background:var(--blade-soft);border-radius:99px;padding:.28em .6em;
+  line-height:1;white-space:nowrap}
 
 table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
 th,td{text-align:left;padding:.72rem .9rem;border-bottom:1px solid var(--line);vertical-align:top}
@@ -224,12 +236,6 @@ td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 }
 .stat-l{font-size:var(--step);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-family:"Poppins",sans-serif;font-weight:600;margin-top:.5rem;display:block}
 
-input[type="text"]{
-  width:100%;background:var(--surface-2);color:var(--ink);
-  border:1px solid var(--line-strong);border-radius:4px;
-  padding:.75em .85em;font-size:1rem;font-family:"IBM Plex Mono",monospace;
-}
-.field{display:flex;flex-direction:column;gap:.6rem}
 
 footer{border-top:1px solid var(--line);padding:3rem 0 4rem}
 .closing{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.8rem;margin-bottom:2.6rem}
@@ -248,6 +254,8 @@ a:hover{text-decoration-color:var(--blade)}
   *{transition-duration:.01ms !important;animation-duration:.01ms !important}
 }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <nav class="topnav">
@@ -262,7 +270,9 @@ a:hover{text-decoration-color:var(--blade)}
       <span class="sep">Foundations</span>
     </a>
     <div class="navlinks">
-      <a href="index.html">Home</a>
+      <a class="home" href="index.html" aria-label="Home" title="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 10.6 12 3.4l8.8 7.2"/><path d="M5.6 9.6V20h12.8V9.6"/></svg>
+      </a>
       <a href="where-words-break.html" aria-current="page">Tokens</a>
       <a href="the-desk-fills-up.html">Context</a>
       <a href="look-it-up.html">Documents</a>
@@ -295,10 +305,10 @@ a:hover{text-decoration-color:var(--blade)}
       <button id="play">Cut it up</button>
       <button class="ghost" id="step">Step</button>
       <button class="ghost" id="reset">Reset</button>
-      <span class="counter"><b id="tcount">0</b> tokens · <span id="ccount">37</span> characters</span>
+      <span class="counter"><b id="tcount">0</b> tokens · <span id="ccount">90</span> characters</span>
     </div>
   </div>
-  <p class="note measure">Nine tokens, thirty-eight characters. <code>Tokenization</code> is two pieces, not one, and every space travels with the word after it. Same piece, same colour.</p>
+  <p class="note measure">Sixteen tokens, ninety characters. The ordinary words come through whole, one piece each. The two odd ones cost five pieces between them — <code>unsubscribeable</code> splits after the verb, <code>neologisms</code> into three — and every space travels with the word after it. Same piece, same colour.</p>
 
   <!-- 01 -->
   <section class="station">
@@ -315,7 +325,7 @@ a:hover{text-decoration-color:var(--blade)}
       <div class="tabs" role="tablist" aria-label="Segmentation strategies">
         <button class="tab" role="tab" aria-selected="true" data-mode="word">Whole words</button>
         <button class="tab" role="tab" aria-selected="false" data-mode="char">Single characters</button>
-        <button class="tab" role="tab" aria-selected="false" data-mode="sub">Subwords &nbsp;←&nbsp; what is actually used</button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="sub">Subwords<span class="tag">what models use</span></button>
       </div>
       <div class="panel-pad">
         <div class="chips" id="waysChips"></div>
@@ -349,7 +359,7 @@ a:hover{text-decoration-color:var(--blade)}
       <span class="num">02</span>
       <div>
         <span class="eyebrow">Not grammar — statistics</span>
-        <h2>The seams are learned, not logical</h2>
+        <h2>The breaks are learned, not logical</h2>
         <p class="lede measure">Nobody wrote rules for where to cut. Frequency did. Six habits follow.</p>
       </div>
     </div>
@@ -418,32 +428,6 @@ a:hover{text-decoration-color:var(--blade)}
     </div>
   </section>
 
-  <!-- 04 -->
-  <section class="station">
-    <div class="station-head">
-      <span class="num">04</span>
-      <div>
-        <span class="eyebrow">Your turn</span>
-        <h2>Break your own sentence</h2>
-        <p class="lede measure">Type anything and watch where it splits.</p>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-pad field">
-        <label class="eyebrow" for="tryInput">Text</label>
-        <input type="text" id="tryInput" value="An ordinary English sentence stays cheap, but antidisestablishmentarianism and INV-2026-00847 do not." autocomplete="off" spellcheck="false">
-        <div class="chips" id="tryChips" style="margin-top:.6rem"></div>
-      </div>
-      <div class="stats">
-        <div class="stat"><span class="stat-n" id="tChars">0</span><span class="stat-l">Characters</span></div>
-        <div class="stat"><span class="stat-n" id="tToks">0</span><span class="stat-l">Tokens (approx.)</span></div>
-        <div class="stat"><span class="stat-n" id="tRatio">0</span><span class="stat-l">Characters per token</span></div>
-      </div>
-    </div>
-    <p class="note measure" style="margin-top:1rem">A rough imitation. The examples above are hand-checked.</p>
-  </section>
-
   <footer>
     <div class="closing">
       <div>
@@ -460,7 +444,7 @@ a:hover{text-decoration-color:var(--blade)}
       </div>
     </div>
     <div class="disclosure">
-      <strong>About these numbers.</strong> The examples follow <code>cl100k_base</code>, the GPT-4 family's tokenizer. Seams differ by model; the Polish one is approximate. For exact counts use
+      <strong>About these numbers.</strong> The examples follow <code>cl100k_base</code>, the GPT-4 family's tokenizer. The breaks differ by model; the Polish one is approximate. For exact counts use
       <a href="https://platform.openai.com/tokenizer" target="_blank" rel="noopener">OpenAI's tokenizer page</a>.
     </div>
   </footer>
@@ -523,7 +507,8 @@ function renderChips(host, tokens, opts){
 }
 
 /* ================= hero: the cut ================= */
-const HERO = ["Token","ization"," is"," not"," the"," same"," as"," words","."];
+const HERO = ["An"," ordinary"," English"," sentence"," stays"," cheap",","," but",
+              " unsubscribe","able"," ne","olog","isms"," become"," expensive","."];
 const cutrow = document.getElementById("cutrow");
 const blade  = document.getElementById("blade");
 const tcount = document.getElementById("tcount");
@@ -719,118 +704,6 @@ document.querySelectorAll("[data-sample]").forEach(btn => {
 });
 showSample("email");
 
-/* ================= 04: approximate tokenizer =================
-   Not a real BPE vocabulary. It reproduces the visible habits:
-   leading-space attachment, digit runs, case boundaries, suffix peeling,
-   and fragmenting of anything long or non-ASCII.                       */
-const COMMON = new Set(("the be to of and a in that have i it for not on with he as you do at this but his by from " +
-  "they we say her she or an will my one all would there their what so up out if about who get which go me when make " +
-  "can like time no just him know take people into year your good some could them see other than then now look only " +
-  "come its over think also back after use two how our work first well way even new want because any these give day " +
-  "most us please check revenue forecast before board meeting thank coming session token model context window prompt " +
-  "agent tool document rule skill design system value team learn text piece word number cost price count " +
-  "english polish ordinary sentence invoice characters character unusual multiply pieces paste stays cheap " +
-  "rare prose greeting language answer question example").split(" "));
-const SUFFIXES = ["ization","ationally","ability","ational","ization","ically","ations","ingly","ation","ition","ities",
-  "ously","ments","ility","ance","ence","ing","ers","ion","ity","ies","ive","ous","ful","ish","est","ise","ize","ly",
-  "ed","es","er","al","ic","s"];
-
-function splitWord(word){
-  const bare = word.replace(/^\s+/, "");
-  // decide this BEFORE peeling anything: a frequent or short word has its own
-  // vocabulary entry, so a real tokenizer never cuts it up
-  if (COMMON.has(bare.toLowerCase()) || bare.length <= 8) return [word];
-
-  const out = [];
-  let rest = word;
-  // peel one or two suffixes off the end while the stem stays substantial
-  for (let pass = 0; pass < 2; pass++) {
-    for (const suf of SUFFIXES) {
-      if (rest.length - suf.length >= 4 && rest.toLowerCase().endsWith(suf)) {
-        out.unshift(rest.slice(rest.length - suf.length));
-        rest = rest.slice(0, rest.length - suf.length);
-        break;
-      }
-    }
-  }
-  // whatever is left: keep it if it is short or familiar, otherwise slice it up
-  const chunks = [];
-  let head = rest;
-  const familiar = COMMON.has(head.toLowerCase().trim());
-  if (familiar || head.replace(/^\s+/, "").length <= 8) {
-    chunks.push(head);
-  } else {
-    const lead = head.match(/^\s*/)[0];
-    let body = head.slice(lead.length);
-    let size = 5;
-    let firstChunk = true;
-    while (body.length) {
-      const take = body.length - size < 2 ? body.length : size;
-      chunks.push((firstChunk ? lead : "") + body.slice(0, take));
-      body = body.slice(take);
-      size = 4;
-      firstChunk = false;
-    }
-  }
-  return chunks.concat(out);
-}
-
-function approxTokenize(text){
-  if (!text) return [];
-  const out = [];
-  // leading whitespace binds to the run that follows it
-  const re = /\s*(?:[A-Za-z]+|[0-9]+|[^\sA-Za-z0-9]|$)|\s+/g;
-  let m;
-  while ((m = re.exec(text)) !== null) {
-    const chunk = m[0];
-    if (!chunk) { if (re.lastIndex >= text.length) break; re.lastIndex++; continue; }
-    const lead = chunk.match(/^\s*/)[0];
-    const body = chunk.slice(lead.length);
-
-    if (/^[0-9]+$/.test(body)) {
-      // digits break in runs of up to three
-      let d = body, first = true;
-      while (d.length) {
-        const take = Math.min(3, d.length);
-        out.push((first ? lead : "") + d.slice(0, take));
-        d = d.slice(take);
-        first = false;
-      }
-    } else if (/^[A-Za-z]+$/.test(body)) {
-      if (body === body.toUpperCase() && body.length > 2) {
-        // all-caps has no entry of its own: two letters at a time
-        let u = body, first = true;
-        while (u.length) {
-          const take = u.length === 3 ? 3 : Math.min(2, u.length);
-          out.push((first ? lead : "") + u.slice(0, take));
-          u = u.slice(take);
-          first = false;
-        }
-      } else {
-        splitWord(lead + body).forEach(t => out.push(t));
-      }
-    } else if (body.length) {
-      // punctuation, diacritics, emoji: non-ASCII is expensive, one piece each
-      out.push(lead + body);
-    } else if (lead) {
-      out.push(lead);
-    }
-    if (m.index === re.lastIndex) re.lastIndex++;
-  }
-  return out.filter(t => t.length);
-}
-
-const tryInput = document.getElementById("tryInput");
-const tryChips = document.getElementById("tryChips");
-function runTry(){
-  const text = tryInput.value;
-  const toks = approxTokenize(text);
-  renderChips(tryChips, toks);
-  tryChips.classList.toggle("tight", toks.length > 40);
-  document.getElementById("tChars").textContent = text.length;
-  document.getElementById("tToks").textContent = toks.length;
-  document.getElementById("tRatio").textContent = toks.length ? (text.length / toks.length).toFixed(1) : "0";
-}
-tryInput.addEventListener("input", runTry);
-runTry();
 </script>
+</body>
+</html>
