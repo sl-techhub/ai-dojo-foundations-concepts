@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where Words Break</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -195,6 +200,10 @@ button:focus-visible,input:focus-visible,.tab:focus-visible{
 }
 .tab:hover{color:var(--ink)}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blade)}
+.tab{display:inline-flex;align-items:center;gap:.55em}
+.tab .tag{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--blade);background:var(--blade-soft);border-radius:99px;padding:.28em .6em;
+  line-height:1;white-space:nowrap}
 
 table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
 th,td{text-align:left;padding:.72rem .9rem;border-bottom:1px solid var(--line);vertical-align:top}
@@ -251,6 +260,8 @@ a:hover{text-decoration-color:var(--blade)}
   *{transition-duration:.01ms !important;animation-duration:.01ms !important}
 }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <nav class="topnav">
@@ -320,7 +331,7 @@ a:hover{text-decoration-color:var(--blade)}
       <div class="tabs" role="tablist" aria-label="Segmentation strategies">
         <button class="tab" role="tab" aria-selected="true" data-mode="word">Whole words</button>
         <button class="tab" role="tab" aria-selected="false" data-mode="char">Single characters</button>
-        <button class="tab" role="tab" aria-selected="false" data-mode="sub">Subwords &nbsp;←&nbsp; what is actually used</button>
+        <button class="tab" role="tab" aria-selected="false" data-mode="sub">Subwords<span class="tag">what models use</span></button>
       </div>
       <div class="panel-pad">
         <div class="chips" id="waysChips"></div>
@@ -839,3 +850,5 @@ function runTry(){
 tryInput.addEventListener("input", runTry);
 runTry();
 </script>
+</body>
+</html>
