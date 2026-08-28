@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Same Cake Every Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* AI Dojo, taken from the deck: ground #FAFAF7, ink #303030, red #DF3C4B */
+  --bg:#FAFAF7;
+  --surface:#FFFFFF;
+  --surface-2:#F4F4F0;
+  --line:#E5E5DF;
+  --line-strong:#C9C9C2;
+  --ink:#303030;
+  --ink-2:#4F4F4A;
+  --muted:#75756F;
+  --dojo:#DF3C4B;
+  --accent:#DF3C4B;
+  --accent-soft:rgba(223,60,75,.10);
+  --shadow:0 1px 2px rgba(48,48,48,.04), 0 10px 30px -20px rgba(48,48,48,.26);
+  --shadow-lift:0 2px 4px rgba(48,48,48,.05), 0 18px 40px -24px rgba(48,48,48,.34);
+  --step:clamp(.72rem,.68rem + .2vw,.8rem);
+
+  /* page-specific meaning, kept: these encode the diagrams */
+  --tab:#C9C9C2;
+  --lit:#DF3C4B;
+  --lit-soft:rgba(223,60,75,.10);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Poppins",system-ui,sans-serif;font-size:1.0625rem;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.measure{max-width:56ch}
+
+h1,h2,h3,.eyebrow,button,.boxcap,.tag,.cardname,.tn{font-family:"Poppins",system-ui,sans-serif}
+h1,h2{text-wrap:balance;margin:0}
+h1{font-weight:800;
+   font-size:clamp(2.2rem,1.1rem + 5.4vw,4.4rem);line-height:.95;letter-spacing:-.025em}
+h2{font-weight:700;
+   font-size:clamp(1.45rem,1.15rem + 1.4vw,2.1rem);line-height:1.08;letter-spacing:-.018em}
+p{margin:0}
+.eyebrow{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted)}
+.lede{font-size:clamp(1.05rem,1rem + .35vw,1.2rem);color:var(--ink-2)}
+.note{font-size:.92rem;color:var(--muted)}
+strong{font-weight:500;color:var(--ink)}
+.dojo{display:inline-flex;align-items:center;gap:.55rem}
+.dojo .torii{width:20px;height:auto;fill:var(--dojo);flex:none}
+.dojo .wm{display:inline-flex;align-items:baseline;color:var(--ink);letter-spacing:-.01em}
+.dojo .wm i{font-style:normal;font-weight:500;font-size:1.12rem;line-height:1}
+.dojo .wm b{font-weight:800;font-size:1.12rem;line-height:1}
+.dojo .wm u{text-decoration:none;width:4px;height:4px;border-radius:50%;
+  background:var(--dojo);align-self:flex-start;margin-left:2px}
+.dojo .sep{font-size:var(--step);font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);padding-left:.5rem;margin-left:.2rem;border-left:1px solid var(--line-strong)}
+
+/* ---------- menu across the set: relative links, so the folder travels as one ---------- */
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem 1.4rem;
+  padding:1.05rem 0 .95rem;border-bottom:1px solid var(--line)}
+.navlinks{display:flex;flex-wrap:wrap;gap:.2rem .25rem;margin-left:auto}
+.topnav .dojo{text-decoration:none}
+.navlinks a{font-family:"Poppins",system-ui,sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--muted);text-decoration:none;padding:.42em .75em;border-radius:99px;
+  border:1px solid transparent;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+.navlinks a:hover{color:var(--ink);border-color:var(--line-strong)}
+.navlinks a.home{display:inline-flex;align-items:center;padding:.42em .6em}
+.navlinks a.home svg{width:16px;height:16px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
+.navlinks a[aria-current="page"]{color:var(--ink);border-color:var(--dojo);background:var(--accent-soft)}
+.navlinks a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:620px){.navlinks{margin-left:0;width:100%}}
+
+header.hero{position:relative;padding:clamp(2rem,5vh,3.6rem) 0 1.8rem;
+  display:flex;flex-direction:column;gap:1rem}
+.clouds{position:absolute;top:clamp(2.2rem,7vh,5rem);right:0;
+  width:clamp(86px,13vw,136px);height:auto;fill:var(--dojo);opacity:.85;pointer-events:none}
+@media (max-width:640px){.clouds{display:none}}
+
+section{padding:clamp(2.4rem,6vh,4.2rem) 0;border-top:1px solid var(--line)}
+.head{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.pad{padding:clamp(1rem,3vw,1.8rem)}
+
+button{font-size:.86rem;font-weight:600;
+  padding:.45em .9em;border-radius:4px;cursor:pointer;
+  background:transparent;color:var(--ink-2);border:1px solid var(--line-strong);
+  transition:color .15s ease,border-color .15s ease,background-color .15s ease}
+button:hover{color:var(--ink);border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--lit);outline-offset:2px}
+button[aria-pressed="true"],button[aria-selected="true"]{
+  color:#fff;background:var(--dojo);border-color:var(--dojo)}
+
+.caption{padding:0 clamp(1rem,3vw,1.8rem) 1.1rem;font-size:.98rem;color:var(--ink-2);min-height:3.4em}
+.caption b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--lit);
+  font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+.bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+  padding:.75rem clamp(1rem,3vw,1.8rem);border-top:1px solid var(--line)}
+.tick{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem;font-size:.82rem;color:var(--muted);
+  padding:0 clamp(1rem,3vw,1.8rem) 1.1rem}
+.legend b{display:inline-flex;align-items:center;gap:.4rem;font-weight:400}
+.legend i{width:.75rem;height:.75rem;border-radius:2px;flex:none}
+.legend i.dashed{background:transparent;border:1px dashed var(--line-strong)}
+
+/* ================= the order, read out loud ================= */
+.order{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem .7rem;margin-bottom:1.25rem;
+  min-height:2.6em}
+.order .lbl{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);flex:none}
+.order .txt{font-size:1.02rem;color:var(--ink);opacity:0;transform:translateY(4px);
+  transition:opacity .3s ease,transform .3s ease}
+.order .txt.in{opacity:1;transform:none}
+
+/* ================= the box and the counter ================= */
+.bakegrid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:clamp(1rem,3vw,1.9rem);align-items:start}
+@media (max-width:780px){.bakegrid{grid-template-columns:1fr}}
+.boxcap{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-bottom:.55rem}
+
+.box{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
+  padding:.6rem .6rem .25rem}
+.tabrow{display:flex;flex-direction:column;gap:.05rem;
+  background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tab);
+  border-radius:3px;padding:.48rem .6rem;margin-bottom:.38rem;
+  transition:opacity .3s ease,border-color .25s ease,background-color .25s ease,transform .25s ease}
+.tabrow .tn{font-size:.92rem;font-weight:600;letter-spacing:-.006em;line-height:1.25}
+.tabrow .td{font-size:.81rem;color:var(--muted);line-height:1.3}
+.tabrow.dim{opacity:.34}
+.tabrow.lit{border-color:var(--lit);border-left-color:var(--lit);background:var(--lit-soft);
+  transform:translateX(3px)}
+.tabrow.lit .td{color:var(--ink-2)}
+.tabrow.gone{opacity:.22;border-style:dashed;border-left-style:dashed;background:transparent}
+.boxfoot{font-size:.78rem;color:var(--muted);padding:.15rem .2rem .45rem}
+
+.counterside{display:flex;flex-direction:column;gap:.7rem}
+.readout{display:flex;align-items:baseline;gap:.45rem}
+.readout .big{font-family:"IBM Plex Mono",monospace;font-size:1.5rem;font-weight:600;
+  line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;
+  transition:color .25s ease}
+.readout.hot .big{color:var(--lit)}
+.readout .sub{font-size:.8rem;color:var(--muted)}
+.counter{position:relative;min-height:250px;border:1px dashed var(--line-strong);border-radius:6px;
+  background:var(--surface-2);padding:.7rem}
+.counter .empty{position:absolute;inset:.9rem;display:flex;align-items:center;
+  font-size:.9rem;color:var(--muted);transition:opacity .3s ease}
+.counter.busy .empty{opacity:0}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);padding:.8rem .9rem .9rem;
+  opacity:0;transform:translateY(-10px) rotate(-.6deg);
+  transition:opacity .35s ease,transform .4s cubic-bezier(.4,0,.2,1)}
+.card.in{opacity:1;transform:none}
+.cardname{font-size:.98rem;font-weight:700;letter-spacing:-.008em}
+.cardsub{font-size:.8rem;color:var(--muted);margin-top:.1rem}
+.card ol{margin:.65rem 0 0;padding-left:1.4rem;display:flex;flex-direction:column;gap:.34rem}
+.card li{font-size:.9rem;line-height:1.4;color:var(--ink-2);opacity:.38;
+  transition:opacity .25s ease,color .25s ease}
+.card li.done{opacity:.85}
+.card li.now{opacity:1;color:var(--ink);font-weight:500}
+.card li.key{padding-left:.5rem;margin-left:-.5rem;border-left:2px solid var(--lit)}
+.card li.key.now{color:var(--lit)}
+.tinrow{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;padding-top:.7rem;
+  border-top:1px solid var(--line);opacity:0;transition:opacity .3s ease}
+.card.in .tinrow{opacity:1}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink-2);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:.2em .5em}
+
+/* ================= the tab does the choosing ================= */
+.pickgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(1rem,3vw,1.8rem);align-items:start}
+@media (max-width:780px){.pickgrid{grid-template-columns:1fr}}
+.orders{display:flex;flex-direction:column;gap:.45rem}
+.orders button{text-align:left;font-weight:500;font-size:.93rem;padding:.6em .8em;line-height:1.3}
+.modes{display:flex;gap:.4rem;margin-bottom:.9rem;flex-wrap:wrap}
+.verdict{margin-top:.8rem;font-size:.93rem;color:var(--ink-2);min-height:3.2em}
+.verdict b{font-family:"Poppins",sans-serif;font-weight:700;color:var(--lit);
+  font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:.2rem}
+
+/* ================= the baker, the oven, the card ================= */
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.trio > div{background:var(--surface);padding:1.15rem 1.25rem 1.3rem;
+  display:flex;flex-direction:column;gap:.6rem}
+.trio svg{display:block;width:44px;height:44px;fill:none;stroke:var(--ink-2);
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.trio .is-skill svg{stroke:var(--lit)}
+.tag{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.trio .is-skill .tag{color:var(--lit)}
+.trio h3{margin:0;font-size:1.02rem;font-weight:600;letter-spacing:-.008em}
+.trio p{font-size:.93rem;color:var(--ink-2)}
+.trio a{color:var(--lit);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+.trio a:hover{border-bottom-color:var(--lit)}
+
+/* ================= the same idea, minus the cake ================= */
+.scroller{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.93rem}
+th,td{text-align:left;padding:.75rem clamp(.8rem,2vw,1.15rem);
+  border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.68rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink);font-style:italic}
+td:nth-child(2){font-weight:600;white-space:nowrap}
+td:last-child{color:var(--ink-2)}
+
+footer{border-top:1px solid var(--line);padding:2.4rem 0 4rem;display:flex;flex-direction:column;gap:1.2rem}
+.acronym{font-size:.95rem;color:var(--muted);max-width:64ch}
+.acronym strong{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){*{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="topnav">
+    <a class="dojo" href="index.html" aria-label="AI Dojo Foundations, home">
+      <svg class="torii" viewBox="0 0 34 30" aria-hidden="true">
+        <rect x="0"    y="3"    width="34"  height="3.4" rx="1"></rect>
+        <rect x="3.4"  y="9"    width="27.2" height="3"  rx="1"></rect>
+        <rect x="8.6"  y="6.4"  width="3.2" height="23.6"></rect>
+        <rect x="22.2" y="6.4"  width="3.2" height="23.6"></rect>
+      </svg>
+      <span class="wm"><i>Ai</i><b>DOJO</b><u></u></span>
+      <span class="sep">Foundations</span>
+    </a>
+    <div class="navlinks">
+      <a class="home" href="index.html" aria-label="Home" title="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 10.6 12 3.4l8.8 7.2"/><path d="M5.6 9.6V20h12.8V9.6"/></svg>
+      </a>
+      <a href="where-words-break.html">Tokens</a>
+      <a href="the-desk-fills-up.html">Context</a>
+      <a href="look-it-up.html">Documents</a>
+      <a href="a-set-of-keys.html">Tools</a>
+      <a href="who-holds-the-baton.html">Chat vs agent</a>
+      <a href="same-cake-every-time.html" aria-current="page">Skills</a>
+    </div>
+  </nav>
+
+
+  <header class="hero">
+    <svg class="clouds" viewBox="0 0 120 34" aria-hidden="true">
+      <rect x="40" y="0"  width="80" height="6" rx="3"></rect>
+      <rect x="62" y="4"  width="8"  height="13"></rect>
+      <rect x="8"  y="14" width="104" height="6" rx="3"></rect>
+      <rect x="46" y="18" width="8"  height="13"></rect>
+      <rect x="44" y="28" width="76" height="6" rx="3"></rect>
+    </svg>
+    <h1>Same cake<br>every time</h1>
+    <p class="lede measure">The model can already bake. A skill is <strong>our recipe card</strong> — our steps, our proportions, the one warning we learned the hard way — written down once, so the cake comes out the same on Friday as it did in March.</p>
+  </header>
+
+  <div class="panel">
+    <div class="pad">
+      <p class="order">
+        <span class="lbl">The order</span>
+        <span class="txt" id="orderTxt">&nbsp;</span>
+      </p>
+      <div class="bakegrid">
+        <div>
+          <span class="boxcap">The recipe box</span>
+          <div class="box" id="box"></div>
+          <p class="boxfoot" id="boxfoot">Six cards. From across the room you can only read the tabs.</p>
+        </div>
+        <div class="counterside">
+          <span class="boxcap">The counter</span>
+          <div class="readout" id="readout">
+            <span class="big" id="tok">90</span>
+            <span class="sub">tokens of counter taken</span>
+          </div>
+          <div class="counter" id="counter">
+            <p class="empty" id="empty">Nothing open. Just the tabs, read from across the room.</p>
+            <div class="card" id="card">
+              <p class="cardname">Cheesecake</p>
+              <p class="cardsub">the birthday one, baked slow</p>
+              <ol id="steps"></ol>
+              <div class="tinrow">
+                <span class="chip">tin-20cm.svg</span>
+                <span class="chip">label-template.pdf</span>
+                <span class="chip">timings.csv</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <b><i style="background:var(--tab)"></i>Tab only — a name and one line</b>
+      <b><i style="background:var(--lit-soft);border:1px solid var(--lit)"></i>Matched the order</b>
+      <b><i class="dashed"></i>Card is out of the box</b>
+    </div>
+    <p class="caption" id="caption"></p>
+    <div class="bar">
+      <button id="play">Pause</button>
+      <button id="stepBtn">Step</button>
+      <button id="reset">Restart</button>
+      <span class="tick" id="tickstat"></span>
+    </div>
+  </div>
+  <p class="note measure" style="margin-top:.9rem">Six recipes cost ninety tokens while they sit in the box. One open card costs fifteen times that — which is why the box can be large and the counter cannot.</p>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">The one thing the author controls</span>
+      <h2>The tab does the choosing</h2>
+      <p class="lede measure">Nobody opens the box hoping for the best. The order is matched against the tabs — so a tab that says nothing useful keeps a perfectly good card shut.</p>
+    </div>
+    <div class="panel pad">
+      <div class="modes" role="tablist" aria-label="How the tabs are written">
+        <button role="tab" aria-selected="true" data-mode="clear">Tabs written well</button>
+        <button role="tab" aria-selected="false" data-mode="vague">Tabs written badly</button>
+      </div>
+      <div class="pickgrid">
+        <div>
+          <span class="boxcap">Pick an order</span>
+          <div class="orders" id="orders">
+            <button data-order="cheese">“A cheesecake for Friday's birthday.”</button>
+            <button data-order="banana">“Something for the bananas going brown.”</button>
+            <button data-order="bread">“I want bread for Sunday lunch.”</button>
+          </div>
+        </div>
+        <div>
+          <span class="boxcap">The tabs it reads</span>
+          <div class="box" id="pickBox"></div>
+        </div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">Same box, same cards, same cake inside. The only thing that changed is the writing on the tab.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Three different things, easy to confuse</span>
+      <h2>The baker, the oven, the card</h2>
+    </div>
+    <div class="trio">
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M8 15a5 5 0 0 1 3-9 5 5 0 0 1 10 0 5 5 0 0 1 3 9z"/>
+          <path d="M8 15h16v4H8z"/>
+          <path d="M10 19v7h12v-7"/>
+        </svg>
+        <span class="tag">The baker</span>
+        <h3>The model</h3>
+        <p>Knows how to bake in general. Give it flour, sugar and eggs and you get a cake — a good one, and a slightly different one every time.</p>
+      </div>
+      <div>
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="4" y="5" width="24" height="22" rx="2"/>
+          <rect x="8" y="13" width="16" height="10" rx="1"/>
+          <path d="M8 9h6"/><circle cx="22" cy="9" r="1.4"/>
+        </svg>
+        <span class="tag">The oven</span>
+        <h3>A tool</h3>
+        <p>Access it does not have on its own. Without the oven nothing bakes, however good the recipe — that is <a href="a-set-of-keys.html">a set of keys</a>.</p>
+      </div>
+      <div class="is-skill">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M6 9h20v18H6z"/>
+          <path d="M6 9V5h11v4"/>
+          <path d="M10 15h12M10 19h12M10 23h7"/>
+        </svg>
+        <span class="tag">The card</span>
+        <h3>A skill</h3>
+        <p>What to do with the other two, our way: the order of the steps, the proportions, and the note that says do not open the oven for the first 25 minutes.</p>
+      </div>
+    </div>
+    <p class="note measure" style="margin-top:.9rem">A fourth thing exists and is almost never what you need: teaching a whole new baker from scratch. That is fine-tuning — months, money, and a baker who still cannot be corrected by editing one line.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <span class="eyebrow">Off the metaphor, into the week</span>
+      <h2>The same idea, minus the cake</h2>
+    </div>
+    <div class="panel scroller">
+      <table>
+        <thead><tr><th>The order</th><th>The card</th><th>What the card holds</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>“Write up the month for the board.”</td>
+            <td>Monthly report</td>
+            <td>Section order, the four numbers we always show, the tone, the chart template</td>
+          </tr>
+          <tr>
+            <td>“Check this before it ships.”</td>
+            <td>Brand check</td>
+            <td>Words we do not use, claims that legal has to see, how the products are named</td>
+          </tr>
+          <tr>
+            <td>“File this bug.”</td>
+            <td>Bug ticket</td>
+            <td>Required fields, how to title it, who it goes to, the reproduction template</td>
+          </tr>
+          <tr>
+            <td>“New client starts Monday.”</td>
+            <td>Client kickoff</td>
+            <td>Order of the calls, the document sent on day one, what to ask before quoting</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note measure" style="margin-top:1rem">None of these teach the model anything it could not already do. They stop you re-explaining the house rules every Monday.</p>
+  </section>
+
+  <footer>
+    <p class="acronym"><strong>The catch.</strong> A card is a document, and it rots like one. Three ways skills go quietly wrong: the tab is too vague, so the card never comes out; the card has grown into a whole cookbook, so the one line that mattered is buried; or the card is a year old and the oven has since been replaced. Written down once is the promise — kept true is the work.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============ the box: a name and one line each, which is all that stays in the room ============ */
+const TABS = [
+  { n:"Cheesecake",   d:"the birthday one, baked slow" },
+  { n:"Banana bread", d:"for bananas going brown" },
+  { n:"Sourdough",    d:"two days, needs the starter" },
+  { n:"Brownies",     d:"one tray, for a crowd" },
+  { n:"Pancakes",     d:"Sunday morning, quick" },
+  { n:"Apple pie",    d:"autumn, when the crate arrives" }
+];
+const MATCH = 0;
+
+/* the card itself; `key` marks the line that is the whole reason the card exists */
+const CARD = [
+  { t:"Line the 20 cm tin, base only.", key:false },
+  { t:"Beat the cheese cold, straight from the fridge.", key:false },
+  { t:"Sugar in three goes, never all at once.", key:false },
+  { t:"150 °C, with the water bath underneath.", key:false },
+  { t:"Do not open the oven for the first 25 minutes.", key:true },
+  { t:"Cool it in the oven, door ajar. Everyone skips this one.", key:false }
+];
+
+const IDLE_TOK = 90, OPEN_TOK = 1490;
+
+/* phase: what the box, the counter and the readout are doing at this step */
+const SCRIPT = [
+  { phase:"idle",  step:-1, order:false, cap:["Waiting","Six recipes in the box. What is actually in the room is six tabs — a name and one line about when to use it. Ninety tokens, all in."] },
+  { phase:"order", step:-1, order:true,  cap:["The order","A cheesecake for Friday. Nothing has been opened yet."] },
+  { phase:"scan",  step:-1, order:true,  cap:["Matching","It does not read the cards. It reads the tabs, and one of them is about a birthday cake baked slow."] },
+  { phase:"open",  step:-1, order:true,  cap:["Out of the box","Only now does the card come out and land on the counter — where it takes up room. Same counter as in The desk fills up."] },
+  { phase:"bake",  step:0,  order:true,  cap:["Step 1","The tin is ours: 20 cm, base lined only. A general baker would have guessed, and guessed 24 cm."] },
+  { phase:"bake",  step:1,  order:true,  cap:["Step 2","Cheese cold. This is not baking theory, it is what went wrong the last three times."] },
+  { phase:"bake",  step:2,  order:true,  cap:["Step 3","Sugar in three goes. Our proportions, our order."] },
+  { phase:"bake",  step:3,  order:true,  cap:["Step 4","150 °C and a water bath. The oven is a tool; the card says how we use it."] },
+  { phase:"bake",  step:4,  order:true,  cap:["The line that earns the card","Nothing here the baker could not do. This one sentence is why the cake stopped cracking."] },
+  { phase:"bake",  step:5,  order:true,  cap:["Step 6","Cool it in the oven, door ajar. The step everyone skips, which is exactly why it is written down."] },
+  { phase:"done",  step:-1, order:false, cap:["Card back in the box","The counter is clear and the tab is all that is left in the room. The next order starts from the tabs again."] }
+];
+
+const box      = document.getElementById("box");
+const boxfoot  = document.getElementById("boxfoot");
+const card     = document.getElementById("card");
+const stepsEl  = document.getElementById("steps");
+const counter  = document.getElementById("counter");
+const readout  = document.getElementById("readout");
+const tok      = document.getElementById("tok");
+const orderTxt = document.getElementById("orderTxt");
+const caption  = document.getElementById("caption");
+const tickstat = document.getElementById("tickstat");
+const playBtn  = document.getElementById("play");
+
+TABS.forEach((t, i) => {
+  const d = document.createElement("div");
+  d.className = "tabrow";
+  d.dataset.i = i;
+  d.innerHTML = '<span class="tn">' + t.n + '</span><span class="td">' + t.d + "</span>";
+  box.appendChild(d);
+});
+CARD.forEach(s => {
+  const li = document.createElement("li");
+  li.className = s.key ? "key" : "";
+  li.textContent = s.t;
+  stepsEl.appendChild(li);
+});
+
+const MAX = SCRIPT.length;
+let at = 1, timer = null;
+
+function paint(){
+  const s = SCRIPT[Math.min(MAX, Math.max(1, at)) - 1];
+  const open = s.phase === "open" || s.phase === "bake";
+
+  orderTxt.textContent = s.order ? "“A cheesecake for Friday's birthday.”" : " ";
+  orderTxt.classList.toggle("in", s.order);
+
+  box.querySelectorAll(".tabrow").forEach(el => {
+    const i = Number(el.dataset.i);
+    const isMatch = i === MATCH;
+    el.classList.toggle("lit", isMatch && (s.phase === "scan" || open));
+    el.classList.toggle("dim", !isMatch && (s.phase === "scan" || open));
+    el.classList.toggle("gone", isMatch && open);
+  });
+  boxfoot.textContent = open
+    ? "The cheesecake card is out. The five others are still just tabs."
+    : "Six cards. From across the room you can only read the tabs.";
+
+  card.classList.toggle("in", open);
+  counter.classList.toggle("busy", open);
+  stepsEl.querySelectorAll("li").forEach((li, i) => {
+    li.classList.toggle("now", s.step === i);
+    li.classList.toggle("done", s.step > i);
+  });
+
+  tok.textContent = (open ? OPEN_TOK : IDLE_TOK).toLocaleString("en-US");
+  readout.classList.toggle("hot", open);
+
+  caption.innerHTML = "<b>" + s.cap[0] + "</b>" + s.cap[1];
+  tickstat.textContent = "step " + Math.min(at, MAX) + " of " + MAX;
+}
+
+function stepFwd(){
+  at = at >= MAX ? 1 : at + 1;
+  paint();
+  if (at >= MAX) stop();
+}
+function stop(){
+  if (timer){ clearInterval(timer); timer = null; }
+  playBtn.textContent = at >= MAX ? "Again" : "Play";
+}
+function run(){
+  stop();
+  if (at >= MAX) at = 1;
+  paint();
+  playBtn.textContent = "Pause";
+  timer = setInterval(stepFwd, 2100);
+}
+playBtn.addEventListener("click", () => { timer ? stop() : run(); });
+document.getElementById("stepBtn").addEventListener("click", () => { stop(); stepFwd(); });
+document.getElementById("reset").addEventListener("click", () => { stop(); at = 1; paint(); playBtn.textContent = "Play"; });
+
+paint();
+if (reduced){ at = MAX; paint(); playBtn.textContent = "Again"; }
+else { run(); }
+
+/* ============ the tab does the choosing ============ */
+const SETS = {
+  clear: [
+    { n:"Cheesecake",   d:"the birthday one, baked slow" },
+    { n:"Banana bread", d:"for bananas going brown" },
+    { n:"Sourdough",    d:"two days, needs the starter" },
+    { n:"Brownies",     d:"one tray, for a crowd" }
+  ],
+  vague: [
+    { n:"Recipe 1",       d:"sweet things" },
+    { n:"Bake helper",    d:"assorted baking utilities" },
+    { n:"Bake v2 FINAL",  d:"use this one" },
+    { n:"Notes",          d:"misc" }
+  ]
+};
+/* which tab a given order should reach for, when the tabs say something */
+const HITS = { cheese:0, banana:1, bread:2 };
+const VERDICTS = {
+  clear: {
+    cheese:["Matched","The tab says birthday and slow. The order says Friday's birthday. Card out, cake baked."],
+    banana:["Matched","Nothing in the order says “banana bread” — the tab covers the situation, not the name of the dish."],
+    bread:["Matched","Sunday lunch, and a tab that warns it takes two days. It also tells you it needs the starter, before you commit."]
+  },
+  vague: {
+    cheese:["Nothing lights up","The cheesecake card is in there, word for word the same. But “sweet things” does not match an order, so the box stays shut and you get a generic cake."],
+    banana:["Nothing lights up","“Assorted baking utilities” describes the folder, not the moment you would want it. Nobody reaches for that."],
+    bread:["Nothing lights up","“Use this one” assumes the reader already knows. The one reading it never does."]
+  }
+};
+
+const pickBox  = document.getElementById("pickBox");
+const verdict  = document.getElementById("verdict");
+const modeBtns = Array.from(document.querySelectorAll(".modes button"));
+const orderBtns= Array.from(document.querySelectorAll("#orders button"));
+let mode = "clear", picked = null;
+
+function drawPick(){
+  pickBox.innerHTML = "";
+  SETS[mode].forEach((t, i) => {
+    const d = document.createElement("div");
+    d.className = "tabrow";
+    if (picked){
+      const hit = mode === "clear" && HITS[picked] === i;
+      d.classList.add(hit ? "lit" : "dim");
+    }
+    d.innerHTML = '<span class="tn">' + t.n + '</span><span class="td">' + t.d + "</span>";
+    pickBox.appendChild(d);
+  });
+  if (!picked){
+    verdict.innerHTML = '<b>Your turn</b>Pick an order on the left, then try the same order with the tabs written badly.';
+  } else {
+    const v = VERDICTS[mode][picked];
+    verdict.innerHTML = "<b>" + v[0] + "</b>" + v[1];
+  }
+  orderBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.order === picked)));
+}
+modeBtns.forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.mode;
+  modeBtns.forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  drawPick();
+}));
+orderBtns.forEach(b => b.addEventListener("click", () => { picked = b.dataset.order; drawPick(); }));
+drawPick();
+</script>
+</body>
+</html>
