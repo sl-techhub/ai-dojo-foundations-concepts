@@ -157,7 +157,8 @@ section.station{padding:clamp(3rem,7vh,5.5rem) 0;border-top:1px solid var(--line
 .tok.cut{padding:.5em .34em;margin-right:5px;margin-bottom:5px;background:var(--surface-2)}
 .tok.cut .sp{opacity:.4}
 .blade{
-  position:absolute;width:2px;background:var(--blade);border-radius:2px;
+  /* sits inside .cutrow, so top/left and the token offsets below share one origin */
+  position:absolute;top:0;left:0;width:2px;background:var(--blade);border-radius:2px;
   opacity:0;pointer-events:none;
   transition:transform .3s cubic-bezier(.4,0,.2,1),height .2s ease,opacity .2s ease;
   box-shadow:0 0 0 5px var(--blade-soft);
@@ -299,8 +300,9 @@ a:hover{text-decoration-color:var(--blade)}
 
   <div class="panel" style="margin-bottom:1rem">
     <div class="cutter">
-      <div class="cutrow" id="cutrow" aria-live="off"></div>
-      <div class="blade" id="blade"></div>
+      <div class="cutrow" id="cutrow" aria-live="off">
+        <div class="blade" id="blade"></div>
+      </div>
     </div>
     <div class="controls">
       <button id="play">Cut it up</button>
@@ -519,7 +521,7 @@ let toks = [], at = 0, timer = null;
 
 const heroColours = paintScope(HERO);
 function buildHero(){
-  cutrow.innerHTML = "";
+  cutrow.querySelectorAll(".tok").forEach(el => el.remove());
   toks = HERO.map((t, i) => {
     const el = document.createElement("span");
     el.className = "tok";
@@ -544,7 +546,10 @@ function stepOnce(){
   toks[at].classList.add("cut");
   at++;
   tcount.textContent = at;
+  // once for the immediate move, again after the .34s padding transition, or the
+  // blade lands on the width the piece had before it opened up
   requestAnimationFrame(placeBlade);
+  setTimeout(placeBlade, 360);
   return at < toks.length;
 }
 function resetHero(){
